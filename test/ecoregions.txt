@@ -1,0 +1,7 @@
+LandisData  Ecoregions
+
+>>         Map
+>> Active  Code  Name   Description
+>> ------  ----  -----  -----------
+     no	    0   eco0   "non-active"
+     yes    1   eco1   "ecoregion 1"

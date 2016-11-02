@@ -1,0 +1,19 @@
+LandisData  "Dynamic Fire Region Table"
+
+>> Added 0 minimum fire size
+>> Fire Region Data Table
+>>      | Fire region| Fire Size        | Seasonal Foliar Moisture Content (FMC) Data: Hi, Lo, and Proportion (Pr) | Other Ecorgion Data
+>>      |            |                  | Spring (Sp)            Summer (Su)             Fall (Fa)                 |           
+>> Year | Code Name  | Mu Sigma Min Max | SpFMCLo SpFMCHi SpHiPr SuFMCLo SuFMCHi SuFMCPr FaFMCLo FaFMCHi FaHiPr    | OpenFuel NumFires 
+>> ----  -----------  -----------------   ------------------------------------------------------------------------   ----------------
+0	0	Other  0  0 0  15120   120      120      0        120       120       0          120        120        0           8     0
+0	1	Water  0  0 0  15120    120      120      0        120       120       0          120        120        0           8     0
+0	2 AcidBog 0.061 0.00000 0 15120 120 120 0 120 120 0 120 120 0 8 0.00000
+0	3 ForestPeat 0.096 0.00000 0 15120 120 120 0 120 120 0 120 120 0 8 0.00000
+0	4 WetForest 0.024 0.00000 0 15120 120 120 0 120 120 0 120 120 0 8 0.00000
+0	5 CL_NE 5.417 0.88800 0 15120 120 120 0.571 101 120 0.367 120 120 1.00 8 2.4004
+0	6 CL_NW 1.971 1.99240 0 15120 120 120 0.571 101 120 0.367 120 120 1.00 8 1.8707
+0	7 QPP_BWCA 5.390 0.94880 0 15120 120 120 0.571 101 120 0.367 120 120 1.00 8 10.0134
+0	8 SE 0.025 1.92370 0 15120 120 120 0.571 101 120 0.367 120 120 1.00 8 4.5905
+0	9 VNP 5.789 0.29140 0 15120 120 120 0.571 101 120 0.367 120 120 1.00 8 0.3692
+0	10 SW 3.978 1.06790 0 15120 120 120 0.571 101 120 0.367 120 120 1.00 8 16.1522

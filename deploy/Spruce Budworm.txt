@@ -1,0 +1,10 @@
+LandisData   Extension
+
+Name         "Spruce Budworm"
+Version      "0.10 (beta 10 release)"
+Type         disturbance
+Assembly     Landis.Extension.SpruceBudworm
+Class        Landis.Extension.SpruceBudworm.PlugIn
+Description  "Spruce Budworm extension"
+UserGuide    "None"
+CoreVersion  6.0

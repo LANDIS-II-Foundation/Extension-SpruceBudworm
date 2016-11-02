@@ -1,0 +1,72 @@
+LandisData  "Biomass Succession"
+
+Timestep  1
+
+SeedingAlgorithm  WardSeedDispersal
+
+InitialCommunities      "../Init_Comm_Test_BF30.txt"
+InitialCommunitiesMap   "../images/E_init_all1.img"
+
+MinRelativeBiomass
+>> Copied from NESands biomass-succession.txt
+>> Site Shade	Percent Max Biomass
+>> Class	by Ecoregions
+>> ----------	--------------------	
+	eco1
+1	11.25%	
+2	22.5%	
+3	30%	
+4	37.5%	
+5	60%	
+
+
+SufficientLight
+>> Copied from NESands biomass-succession.txt
+>> Spp Shade	Probability
+>> Class	by Actual Shade
+>> ----------	--------------------	
+>>		0	1	2	3	4	5
+	1	1.0	0.0	0.0	0.0	0.0	0.0
+	2	1.0	1.0	0.0	0.0	0.0	0.0
+	3	1.0	1.0	1.0	0.0	0.0	0.0
+	4	1.0	1.0	1.0	1.0	0.0	0.0
+	5	0.5	1.0	1.0	0.7	0.5	0.1
+
+SpeciesParameters
+>> Copied from NESands biomass-succession.txt
+>> larilari estimated from other species
+>> Species   Leaf	WoodyBiomass	Mortality	Growth	Leaf	
+>>	     Longevity	DecayRate	ShapeParam	Shape	Lignin%	
+>> --------  ---------	---------	----------	------	----    
+   abiebals   6.0	0.011		11.0		0.62	0.2	<< Calibrated
+   acerrubr   1.0	0.084		6.1		0.9	0.1	
+   betupapy   1.0	0.096		10.5		0.62	0.1	<< Calibrated
+   fraxnigr   1.0	0.096		6.1		0.8	0.1
+   larilari   1.0  	0.071		6.1		0.8	0.2
+   piceglau   4.0	0.071		10.0		0.62	0.2	<< Calibrated
+   picemari   4.0	0.071		10.5		0.62	0.2	<< Calibrated
+   pinubank   2.3	0.042		9.8		0.62	0.2	<< Calibrated
+   pinuresi   2.3	0.055		6.1		0.85	0.2	
+   pinustro   3.0	0.055		6.2		0.9	0.2	
+   poputrem   1.0	0.080		11.4		0.62	0.1	<< Calibrated
+   querelli   1.0	0.018		6.1		0.85	0.1	
+   thujocci   2.0	0.006		6.3		0.85	0.2
+   uplgrass   1.0	0.100		6.2		0.8	0.1
+   openwetl   1.0	0.100		6.2		0.8	0.1
+   blowdown   1.0	0.100		6.2		0.8	0.1
+
+EcoregionParameters
+>> Copied from NESands biomass-succession.txt
+>>	AET
+>>	mm
+eco1  1000
+
+
+
+DynamicInputFile	../biomass-dynamic-inputs-singleeco.txt
+ 	 
+AgeOnlyDisturbances:BiomassParameters  ../AODist_v3.txt
+ 	 
+		 	 
+		 	 
+			

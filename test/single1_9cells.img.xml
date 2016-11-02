@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xml:lang="en"><Esri><CreaDate>20141020</CreaDate><CreaTime>13561700</CreaTime><ArcGISFormat>1.0</ArcGISFormat><ArcGISstyle>FGDC CSDGM Metadata</ArcGISstyle><SyncOnce>TRUE</SyncOnce><DataProperties><lineage><Process ToolSource="C:\BRM\GIS\Toolboxes\BRMTools.tbx\Reclassify" Date="20141020" Time="135617">Reclassify single1.img Value "0 1;0 1 1" G:\LANDIS_II\code\spruce-budworm\trunk\test\single1_9cells.img DATA</Process></lineage></DataProperties></Esri></metadata>

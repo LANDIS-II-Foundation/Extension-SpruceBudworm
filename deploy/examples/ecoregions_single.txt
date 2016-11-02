@@ -1,0 +1,8 @@
+LandisData  Ecoregions
+
+>>         Map
+>> Active  Code   Name    	Description
+>> ------  ----   -----   	-----------
+    no       0    NA	  	nodata
+    no       1    water   	water
+    yes	     2    eco1		eco1

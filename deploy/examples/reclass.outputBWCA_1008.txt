@@ -1,0 +1,62 @@
+LandisData  "Output Age Reclass"
+
+Timestep   10
+
+>>           Reclass
+>> Species   Coefficient
+>> --------       -----------
+abiebals       1.0
+acerrubr       1.0
+betupapy       1.0
+fraxnigr       1.0
+larilari	1.0
+piceglau       	1.0
+picemari      	1.0
+pinubank     	1.0
+pinuresi       	1.0
+pinustro       	1.0
+poputrem     	1.0
+querelli        1.0
+thujocci        1.0
+uplgrass	1.0
+openwetl	1.0
+blowdown	1.0
+
+
+ReclassMaps
+
+>> Map Name    Forest Type       	Species				map code
+>> --------    -------------     	-------				-------------
+
+  ForType ->    "Ash"			fraxnigr			<<1
+		"Spruce-Fir"		abiebals piceglau picemari	<<2
+		"Aspen-Birch"		betupapy poputrem		<<3
+		"Cedar"			thujocci			<<4
+		"Jack Pine"		pinubank			<<5
+		"Oak"			querelli			<<6
+		"Jack Pine-Oak"		pinubank querelli		<<7
+		"Maple hardwoods"	acerrubr betupapy poputrem	<<8
+		"Red Pine"		pinuresi			<<9
+		"White Pine"		pinustro			<<10
+		"Mixed Pine"		pinustro pinuresi pinubank	<<11
+		"Tamarack"		larilari			<<12
+		"upland Grass"		uplgrass			<<13
+		"Open Wetland"		openwetl			<<14
+		"Blowdown"		blowdown			<<15
+
+    SBWHost ->  "NonHost Deciduous" -abiebals acerrubr betupapy fraxnigr -piceglau -picemari poputrem querelli <<1
+		"NonHost Conifer" -abiebals -piceglau -picemari pinubank pinuresi pinustro thujocci <<2
+		"Black Spruce" -abiebals -piceglau picemari <<3
+		"Fir-White Spruce" abiebals piceglau -picemari <<4	  
+                "Fir-Spruce"  abiebals piceglau picemari <<5
+	        "Host-Conifer" abiebals -acerrubr -betupapy -fraxnigr piceglau picemari pinubank pinuresi pinustro -poputrem -querelli thujocci <<6
+		"Host-Deciduous" abiebals acerrubr betupapy fraxnigr piceglau -picemari -pinubank -pinuresi -pinustro poputrem querelli -thujocci <<7               
+  
+>>sites are classified as a forest type based on the species dominance values at the site: dom = max age/longevity*reclass coef.
+>> dominance values are summed for species that comprise a forest type.  the cell is classified as the forest type with the highest sum
+>> 
+
+
+
+
+MapFileNames   output/reclass/{reclass-map-name}-{timestep}.gis

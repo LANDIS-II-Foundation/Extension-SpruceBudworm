@@ -1,0 +1,6 @@
+LandisData   "Initial Communities"
+
+MapCode 0
+
+MapCode  1
+   abiebals 30

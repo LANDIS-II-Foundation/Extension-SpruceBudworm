@@ -1,0 +1,22 @@
+LandisData  "Output Max Species Age"
+
+
+Timestep   10
+
+MapNames   output/max-spp-age/{species}-{timestep}.gis
+
+Species      abiebals          <<  at each time step a map of the oldest aged cohort of abiebals at each cell will be produced
+ acerrubr                          <<  by default, a map at each time step of the oldest cohort at each cell will be produced regardless of  species.
+ betupapy    
+fraxnigr  
+ larilari     
+ piceglau    
+ picemari  
+ pinubank  
+ pinuresi    
+ pinustro    
+ poputrem   
+ querelli     
+thujocci  
+
+ 

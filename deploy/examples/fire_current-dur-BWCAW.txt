@@ -1,0 +1,69 @@
+LandisData  "Dynamic Fire System"
+
+Timestep  10
+
+>>EventSizeType	size_based      <<or 'duration_based'
+EventSizeType	duration_based  <<or 'size_based'
+ 
+BuildUpIndex	yes	           << yes or no; Y or N                       
+
+DynamicFireRegionTable  "..\dynamic-fire-region-table-BWCAW.txt"
+
+InitialFireRegionsMap	"..\images\W_FIRE_ECO.img"
+
+GroundSlopeFile "..\images\W_SLOPEPCT_UINT.img"
+
+UphillSlopeAzimuthMap  "..\images\W_UPHILLAZ_SINT.img"
+
+SeasonTable
+>> Name	 Lstatus  Proportion  %Curing DayLengthProp
+>>-------------------------------------------------
+Spring	LeafOff	  0.28	      100	1.00
+Summer 	LeafOn    0.69	      0		1.00
+Fall   	LeafOff   0.03       0		1.00
+
+InitialWeatherDatabase                      "..\BLL_weather.csv "
+
+DynamicWeatherTable
+
+FuelTypeTable    
+
+<<  abcq, bui, cbh copied from Canada FFPS table . IgnProb is  determined by user.  M1 M2 necessary if using disturbance extension
+<<   index must match fuel index.  name can be anything.  BaseType defines how the fuels are treated by the extension in calcs. of 
+<<  fire spread, conifer dominance and severity
+<<  Surface Type: used to calculate Surface Fuel Consumption.  SFC is used to calc. Severity
+
+>> Fuel Input Table
+>>          Index              Base                 SurfaceType	IgnProb 	a	b	c	q	BUI	maxBE	CBH
+        1	Conifer                    C2	0.10	30	0.0232	1.6	0.90	32	1.179	20   <<Larilari, thujocci: spread like D1, but not decid
+        2	Conifer                    C2	0.80	110	0.0282 	1.5	0.70	64	1.321	3
+	3	Conifer                    C3	0.60	110	0.0444 3.0	0.75	62	1.261	8
+	4	Conifer                    C4	0.40	110	0.0293	1.5	0.80	66	1.184	4
+	5	Conifer                    C5	0.40	30	0.0697	4.0	0.80	56	1.220	18
+        6	Conifer                    C2	0.80	110	0.0282 	1.5	0.70	64	1.321	3
+	8	Deciduous                  D1	0.00	30	0.0232	1.6	0.90	32	1.179	7
+	9	Conifer                    M1	0.00	0	0	0	0.80	50	1.250	0
+	10	Conifer                    M2	0.00	0	0	0	0.80	50	1.250	6
+	11	Conifer                    M3	1.00	0	0	0	0.80	50	1.250	6
+	12	Conifer                     M4	0.00	0	0	0	0.80	50	1.250	6
+	13	Slash                      S1	0.50	75	0.0297	1.3	0.75	38	1.460	0
+        14	Conifer                    C2	0.40	110	0.0282 	1.5	0.70	64	1.321	3
+        15	Conifer                    C2	0.60	110	0.0282 	1.5	0.70	64	1.321	3
+	16	Open                       O1a	0.0	190	0.0310	1.4	1.0	01	1.000	0
+	17	Open                       O1b	1.0	250	0.0350	1.7	1.0	01	1.000	0
+
+SeverityCalibrationFactor  1
+
+FireDamageTable				
+>>  Cohort Age        FireSeverity - 		<< severity of 5 kill everything
+>> % of longevity     FireTolerance		
+>> --------------     --------------
+          10%		   -3
+	  20%              -2
+          50%              -1
+          85%               0
+          100%              1
+
+MapNames  output/fire/severity-{timestep}.gis
+LogFile   output/fire/log.csv
+SummaryLogFile output/fire/summary-log.csv
