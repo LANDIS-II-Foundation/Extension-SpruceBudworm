@@ -147,6 +147,8 @@ namespace Landis.Extension.SpruceBudworm
         { get; set; }
         bool WrapLDD
         { get; set; }
+        bool LDDSpeedUp
+        { get; set; }
         bool PositiveFecundDispersal
         { get; set; }
         int MinSusceptibleAge

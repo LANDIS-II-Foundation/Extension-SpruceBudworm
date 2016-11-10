@@ -253,6 +253,17 @@ namespace Landis.Extension.SpruceBudworm
             ReadVar(wrapLDD);
             parameters.WrapLDD = wrapLDD.Value;
 
+            InputVar<bool> lddSpeedUp = new InputVar<bool>("LDDSpeedUp");
+            if (ReadOptionalVar(lddSpeedUp))
+            {
+                ReadVar(lddSpeedUp);
+                parameters.LDDSpeedUp = lddSpeedUp.Value;
+            }
+            else
+            {
+                parameters.LDDSpeedUp = false;
+            }
+
             // Read Positive Fecundity Dispersal boolean
             InputVar<bool> positiveFecundDispersal = new InputVar<bool>("PositiveFecundityDispersal");
             ReadVar(positiveFecundDispersal);

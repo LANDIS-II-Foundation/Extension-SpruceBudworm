@@ -52,6 +52,7 @@ namespace Landis.Extension.SpruceBudworm
         private double dispersalMean2;
         private double dispersalWeight1;
         private bool wrapLDD;
+        private bool lddSpeedUp;
         private bool positiveFecundDispersal;
         private int minSusceptibleAge;
         private double l2FilterRadius;
@@ -672,6 +673,21 @@ namespace Landis.Extension.SpruceBudworm
             set
             {
                 wrapLDD = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Turn on/off faster dispersal calcs
+        /// </summary>
+        public bool LDDSpeedUp
+        {
+            get
+            {
+                return lddSpeedUp;
+            }
+            set
+            {
+                lddSpeedUp = value;
             }
         }
         //---------------------------------------------------------------------
