@@ -6,10 +6,34 @@ using Landis.SpatialModeling;
 
 namespace Landis.Extension.SpruceBudworm
 {
+    class Pair
+    {
+        public double First { get; set; }
+        public double Second { get; set; }
+        public Pair(double first, double second)
+        {
+            this.First = first;
+            this.Second = second;
+        }
+    }
+
+    class Triplet
+    {
+        public double Dir { get; set; }
+        public double Distance { get; set; }
+        public double Prob { get; set; }
+
+        public Triplet(double dir, double distance, double prob)
+        {
+            this.Dir = dir;
+            this.Distance = distance;
+            this.Prob = prob;
+        }
+    }
     class Dispersal
     {
         private static Dictionary<double, double> dispersal_probability;
-        private static Dictionary<double, double> cumulative_dispersal_probability;
+        private static new List<Triplet> cumulative_dispersal_probability; //(dir,distance,prob)
         private static int max_dispersal_distance_pixels;
 
         public static void CalculateDispersal()
@@ -88,7 +112,7 @@ namespace Landis.Extension.SpruceBudworm
                     // Distribute LDD dispersers (17)          
                     if (PlugIn.Parameters.LDDSpeedUp)
                     {
-                        
+                        DisperseLDDSpeedUp(site, PlugIn.Parameters.WrapLDD);
                     }
                     else
                     {
@@ -117,34 +141,56 @@ namespace Landis.Extension.SpruceBudworm
         public static void DisperseLDDSpeedUp(Site site, bool wrapLDD)
         {
             int disperseCount = (int)Math.Round(SiteVars.LDDout[site]);
-            List<double> disperseList = new List<double>();
+
+            List<Pair> disperseList = new List<Pair>();
 
             PlugIn.ModelCore.ContinuousUniformDistribution.Alpha = 0;
-            PlugIn.ModelCore.ContinuousUniformDistribution.Alpha = 1;
+            PlugIn.ModelCore.ContinuousUniformDistribution.Beta = 1;
             double randNum = PlugIn.ModelCore.ContinuousUniformDistribution.NextDouble();
 
             for (int i = 1; i <= disperseCount; i++)
             {                
                 randNum = PlugIn.ModelCore.ContinuousUniformDistribution.NextDouble();
-
-                foreach(KeyValuePair<double,double> entry in cumulative_dispersal_probability)
+                foreach (Triplet myTriplet in cumulative_dispersal_probability)
                 {
-                    double cumProb = entry.Value;
+                    double cumProb = myTriplet.Prob;
                     if (cumProb > randNum)
                     {
-                        double dist = entry.Key;
-                        disperseList.Add(dist);
+                        Pair locationPair = new Pair(myTriplet.Dir, myTriplet.Distance);
+                        disperseList.Add(locationPair);
                         break;
                     }
-                  
                 }
 
+                /*foreach(KeyValuePair<double,Dictionary<double,double>> entry in cumulative_dispersal_probability)
+                {
+                    double dir = entry.Key;
+                    Dictionary<double, double> cum_disp_prob_dir = entry.Value;
+                    foreach (KeyValuePair<double, double> distEntry in cum_disp_prob_dir)
+                    {                        
+                        double cumProb = distEntry.Value;
+                        if (cumProb > randNum)
+                        {
+                            double distance = distEntry.Key;
+                            Pair locationPair = new Pair(dir, distance);
+                            disperseList.Add(locationPair);
+                            breakFlag = true;
+                            break;
+                        }
+                    }
+                    if (breakFlag)
+                        break;
+                  
+                }
+                 * */
+
             }
-            foreach(double distance in disperseList)
+            foreach(Pair locationPair in disperseList)
             {
-                double randDir = PlugIn.ModelCore.ContinuousUniformDistribution.NextDouble() * Math.PI * 2;
-                double dj = Math.Cos(randDir) * distance;
-                double dk = Math.Sin(randDir) * distance;
+                double dir =  locationPair.First;
+                double distance = locationPair.Second;
+                double dj = Math.Cos(dir) * distance;
+                double dk = Math.Sin(dir) * distance;
                 int j = (int)Math.Round(dj / PlugIn.ModelCore.CellLength);
                 int k = (int)Math.Round(dk / PlugIn.ModelCore.CellLength);
 
@@ -315,22 +361,54 @@ namespace Landis.Extension.SpruceBudworm
         public static void Initialize()
         {
             dispersal_probability = new Dictionary<double, double>();
-            cumulative_dispersal_probability = new Dictionary<double, double>();
+            //cumulative_dispersal_probability = new Dictionary<double, Dictionary<double, double>>(); //Key 1 = direction, Key2 = distance
+            cumulative_dispersal_probability = new List<Triplet>();
             double max_dispersal_distance = max_dispersal_window();
             max_dispersal_distance_pixels = (int)(max_dispersal_distance / PlugIn.ModelCore.CellLength);
             dispersal_probability.Clear();
             cumulative_dispersal_probability.Clear();
             double total_p = 0;
+            double cumulative_p = 0;
             Dictionary<double, int> dispersal_prob_count = new Dictionary<double, int>(); ;
             for (int x = 0; x <= max_dispersal_distance_pixels; x++) // (int x = -all_species[s].max_dispersal_distance_pixels; x <= all_species[s].max_dispersal_distance_pixels; x++)
             {
                 for (int y = x; y <= max_dispersal_distance_pixels; y++) // (int y = -all_species[s].max_dispersal_distance_pixels; y <= all_species[s].max_dispersal_distance_pixels; y++)
                 {
-                    double dx, dy, r, p;
+                    double dx, dy, r, p, dir;
                     dx = PlugIn.ModelCore.CellLength * x;
                     dy = PlugIn.ModelCore.CellLength * y;
                     r = Math.Sqrt(dx * dx + dy * dy);
-                    p = dispersal_prob(x, y);
+                    p = dispersal_prob(x, y);                    
+                    dir = Math.Asin(dy / r);
+                    if (x == 0 && y == 0)
+                    {
+                        cumulative_p += p;
+                        total_p += p;
+                        Triplet myTriplet = new Triplet(dir, r, cumulative_p);
+                        cumulative_dispersal_probability.Add(myTriplet);
+                    }
+                    else if (x == y || x == 0 || y == 0)
+                    {
+                        total_p += 4 * p;
+                        for(int i=0;i<=3;i++)
+                        {
+                            cumulative_p += p;
+                            double myDir = dir + i * (Math.PI / 2);
+                            Triplet myTriplet = new Triplet(myDir, r, cumulative_p);
+                            cumulative_dispersal_probability.Add(myTriplet);
+                        }
+                    }
+                    else
+                    {
+                        total_p += 8 * p;
+                        for (int i = 0; i <= 7; i++)
+                        {
+                            cumulative_p += p;
+                            double myDir = dir + i * (Math.PI / 4);
+                            Triplet myTriplet = new Triplet(myDir, r, cumulative_p);
+                            cumulative_dispersal_probability.Add(myTriplet);
+                        }
+                    }
                     if (dispersal_probability.ContainsKey(r))
                     {
                         dispersal_probability[r] += p;
@@ -341,19 +419,16 @@ namespace Landis.Extension.SpruceBudworm
                         dispersal_probability.Add(r, p);
                         dispersal_prob_count.Add(r, 1);
                     }
-
-                    if (x == 0 && y == 0)
+                    /*if(cumulative_dispersal_probability.ContainsKey(dir))
                     {
-                        total_p += p;
+                        cumulative_dispersal_probability[dir].Add(r, cumulative_p);                        
                     }
-                    else if (x == y || x == 0 || y == 0)
-                    {
-                        total_p += 4 * p;
+                    else{
+                        Dictionary<double,double> cum_disp_prob_dir = new Dictionary<double,double>();
+                        cum_disp_prob_dir.Add(r, cumulative_p);
+                        cumulative_dispersal_probability.Add(dir,cum_disp_prob_dir);
                     }
-                    else
-                    {
-                        total_p += 8 * p;
-                    }
+                     * */
                 }
             }
 
@@ -361,8 +436,8 @@ namespace Landis.Extension.SpruceBudworm
             foreach (double r in dispersal_prob_count.Keys)
             {
                 dispersal_probability[r] = dispersal_probability[r] / dispersal_prob_count[r];
-                cumulative_prob += dispersal_probability[r];
-                cumulative_dispersal_probability[r] = cumulative_prob;
+                //cumulative_prob += dispersal_probability[r];
+                //cumulative_dispersal_probability[r] = cumulative_prob;
             }
         }
         private static double max_dispersal_window()
@@ -377,6 +452,10 @@ namespace Landis.Extension.SpruceBudworm
             // upper limit on distance set to map diagonal
             max_dist = PlugIn.ModelCore.CellLength * Math.Sqrt(PlugIn.ModelCore.Landscape.Columns * PlugIn.ModelCore.Landscape.Columns + PlugIn.ModelCore.Landscape.Rows * PlugIn.ModelCore.Landscape.Rows);
 
+            if (PlugIn.Parameters.WrapLDD)
+            {
+                max_dist = Double.PositiveInfinity;
+            }
             // maximum possible number of eggs to be dispersed by moths
             // Should this be succesion timestep?  If so how?
             total_max_seeds = 10000 * PlugIn.Parameters.Timestep * PlugIn.ModelCore.CellLength * PlugIn.ModelCore.CellLength;

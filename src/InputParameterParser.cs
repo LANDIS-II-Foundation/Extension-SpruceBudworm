@@ -256,7 +256,6 @@ namespace Landis.Extension.SpruceBudworm
             InputVar<bool> lddSpeedUp = new InputVar<bool>("LDDSpeedUp");
             if (ReadOptionalVar(lddSpeedUp))
             {
-                ReadVar(lddSpeedUp);
                 parameters.LDDSpeedUp = lddSpeedUp.Value;
             }
             else
