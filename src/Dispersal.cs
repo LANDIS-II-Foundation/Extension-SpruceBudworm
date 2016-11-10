@@ -72,7 +72,7 @@ namespace Landis.Extension.SpruceBudworm
                 LDDRatio = LDDHabitat * LDDFlight;
 
                 // Calculate LDD dispersers (16b)
-                double LDDout = (int) (SiteVars.EggCountFall[site] * LDDRatio);
+                double LDDout = SiteVars.EggCountFall[site] * LDDRatio;
                 SiteVars.LDDout[site] = LDDout;
                 SiteVars.SDDout[site] = SiteVars.EggCountFall[site] - LDDout;
 
@@ -268,7 +268,8 @@ namespace Landis.Extension.SpruceBudworm
                             }
                              
                         }
-                        RelativeLocation targetLocation = new RelativeLocation(k, j);
+                        //RelativeLocation targetLocation = new RelativeLocation(k, j);
+                        RelativeLocation targetLocation = new RelativeLocation(target_y - site.Location.Row, target_x - site.Location.Column);
                         Site targetSite = site.GetNeighbor(targetLocation);
 
                         if (targetSite.IsActive)
@@ -407,9 +408,9 @@ namespace Landis.Extension.SpruceBudworm
         private static double marginal_prob(double r)
         {
 
-            double mean1 = 5;
-            double mean2 = 25;
-            double weight1 = 0.5;
+            double mean1 = PlugIn.Parameters.DispersalMean1;
+            double mean2 = PlugIn.Parameters.DispersalMean2;
+            double weight1 = PlugIn.Parameters.DispersalWeight1;
 
             double weight2 = 1 - weight1;
             //if (dispersal_model == Dispersal_Model.DOUBLE_EXPONENTIAL)
