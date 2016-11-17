@@ -148,17 +148,27 @@ namespace Landis.Extension.SpruceBudworm
             PlugIn.ModelCore.ContinuousUniformDistribution.Beta = 1;
             double randNum = PlugIn.ModelCore.ContinuousUniformDistribution.NextDouble();
 
+            List<double> randList = new List<double>();
+
             for (int i = 1; i <= disperseCount; i++)
             {                
                 randNum = PlugIn.ModelCore.ContinuousUniformDistribution.NextDouble();
+                randList.Add (randNum);
+            }
+
+            randList.Sort();
+            int randIndex = 0;
+       
                 foreach (Triplet myTriplet in cumulative_dispersal_probability)
                 {
                     double cumProb = myTriplet.Prob;
-                    if (cumProb > randNum)
+                    if (cumProb > randList[randIndex])
                     {
                         Pair locationPair = new Pair(myTriplet.Dir, myTriplet.Distance);
                         disperseList.Add(locationPair);
-                        break;
+                        randIndex++;
+                        if(randIndex == randList.Count)
+                            break;
                     }
                 }
 
@@ -184,7 +194,7 @@ namespace Landis.Extension.SpruceBudworm
                 }
                  * */
 
-            }
+            
             foreach(Pair locationPair in disperseList)
             {
                 double dir =  locationPair.First;
@@ -360,6 +370,7 @@ namespace Landis.Extension.SpruceBudworm
 
         public static void Initialize()
         {
+            PlugIn.ModelCore.UI.WriteLine("   Initializing dispersal kernel...");
             dispersal_probability = new Dictionary<double, double>();
             //cumulative_dispersal_probability = new Dictionary<double, Dictionary<double, double>>(); //Key 1 = direction, Key2 = distance
             cumulative_dispersal_probability = new List<Triplet>();
