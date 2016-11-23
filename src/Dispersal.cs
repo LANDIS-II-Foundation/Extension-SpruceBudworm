@@ -141,24 +141,25 @@ namespace Landis.Extension.SpruceBudworm
         public static void DisperseLDDSpeedUp(Site site, bool wrapLDD)
         {
             int disperseCount = (int)Math.Round(SiteVars.LDDout[site]);
+            if (disperseCount > 0)
+            {
+                List<Pair> disperseList = new List<Pair>();
 
-            List<Pair> disperseList = new List<Pair>();
+                PlugIn.ModelCore.ContinuousUniformDistribution.Alpha = 0;
+                PlugIn.ModelCore.ContinuousUniformDistribution.Beta = 1;
+                double randNum = PlugIn.ModelCore.ContinuousUniformDistribution.NextDouble();
 
-            PlugIn.ModelCore.ContinuousUniformDistribution.Alpha = 0;
-            PlugIn.ModelCore.ContinuousUniformDistribution.Beta = 1;
-            double randNum = PlugIn.ModelCore.ContinuousUniformDistribution.NextDouble();
+                List<double> randList = new List<double>();
 
-            List<double> randList = new List<double>();
+                for (int i = 1; i <= disperseCount; i++)
+                {
+                    randNum = PlugIn.ModelCore.ContinuousUniformDistribution.NextDouble();
+                    randList.Add(randNum);
+                }
 
-            for (int i = 1; i <= disperseCount; i++)
-            {                
-                randNum = PlugIn.ModelCore.ContinuousUniformDistribution.NextDouble();
-                randList.Add (randNum);
-            }
+                randList.Sort();
+                int randIndex = 0;
 
-            randList.Sort();
-            int randIndex = 0;
-       
                 foreach (Triplet myTriplet in cumulative_dispersal_probability)
                 {
                     double cumProb = myTriplet.Prob;
@@ -167,94 +168,72 @@ namespace Landis.Extension.SpruceBudworm
                         Pair locationPair = new Pair(myTriplet.Dir, myTriplet.Distance);
                         disperseList.Add(locationPair);
                         randIndex++;
-                        if(randIndex == randList.Count)
+                        if (randIndex == randList.Count)
                             break;
                     }
                 }
 
-                /*foreach(KeyValuePair<double,Dictionary<double,double>> entry in cumulative_dispersal_probability)
+                foreach (Pair locationPair in disperseList)
                 {
-                    double dir = entry.Key;
-                    Dictionary<double, double> cum_disp_prob_dir = entry.Value;
-                    foreach (KeyValuePair<double, double> distEntry in cum_disp_prob_dir)
-                    {                        
-                        double cumProb = distEntry.Value;
-                        if (cumProb > randNum)
-                        {
-                            double distance = distEntry.Key;
-                            Pair locationPair = new Pair(dir, distance);
-                            disperseList.Add(locationPair);
-                            breakFlag = true;
-                            break;
-                        }
-                    }
-                    if (breakFlag)
-                        break;
-                  
-                }
-                 * */
+                    double dir = locationPair.First;
+                    double distance = locationPair.Second;
+                    double dj = Math.Cos(dir) * distance;
+                    double dk = Math.Sin(dir) * distance;
+                    int j = (int)Math.Round(dj / PlugIn.ModelCore.CellLength);
+                    int k = (int)Math.Round(dk / PlugIn.ModelCore.CellLength);
 
-            
-            foreach(Pair locationPair in disperseList)
-            {
-                double dir =  locationPair.First;
-                double distance = locationPair.Second;
-                double dj = Math.Cos(dir) * distance;
-                double dk = Math.Sin(dir) * distance;
-                int j = (int)Math.Round(dj / PlugIn.ModelCore.CellLength);
-                int k = (int)Math.Round(dk / PlugIn.ModelCore.CellLength);
+                    int target_x = site.Location.Column + j;
+                    int target_y = site.Location.Row + k;
 
-                int target_x = site.Location.Column + j;
-                int target_y = site.Location.Row + k;
-
-                // wrapLDD causes dispersers to stay within the landscape by wrapping the dispersal vector around the landscape (i.e., torus)
-                if (wrapLDD)
-                {
-                    int landscapeRows = PlugIn.ModelCore.Landscape.Rows;
-                    int landscapeCols = PlugIn.ModelCore.Landscape.Columns;
-
-                    //remainRow=SIGN(C4)*MOD(ABS(C4),$B$1)
-                    int remainRow = Math.Sign(k) * (Math.Abs(k) % landscapeRows);
-                    int remainCol = Math.Sign(j) * (Math.Abs(j) % landscapeCols);
-                    //tempY=A4+H4
-                    int tempY = site.Location.Row + remainRow;
-                    int tempX = site.Location.Column + remainCol;
-                    //source_y=IF(J4<1,$B$1+J4,IF(J4>$B$1,MOD(J4,$B$1),J4))
-                    if (tempY < 1)
+                    // wrapLDD causes dispersers to stay within the landscape by wrapping the dispersal vector around the landscape (i.e., torus)
+                    if (wrapLDD)
                     {
-                        target_y = landscapeRows + tempY;
-                    }
-                    else
-                    {
-                        if (tempY > landscapeRows)
+                        int landscapeRows = PlugIn.ModelCore.Landscape.Rows;
+                        int landscapeCols = PlugIn.ModelCore.Landscape.Columns;
+
+                        //remainRow=SIGN(C4)*MOD(ABS(C4),$B$1)
+                        int remainRow = Math.Sign(k) * (Math.Abs(k) % landscapeRows);
+                        int remainCol = Math.Sign(j) * (Math.Abs(j) % landscapeCols);
+                        //tempY=A4+H4
+                        int tempY = site.Location.Row + remainRow;
+                        int tempX = site.Location.Column + remainCol;
+                        //source_y=IF(J4<1,$B$1+J4,IF(J4>$B$1,MOD(J4,$B$1),J4))
+                        if (tempY < 1)
                         {
-                            target_y = tempY % landscapeRows;
+                            target_y = landscapeRows + tempY;
                         }
                         else
                         {
-                            target_y = tempY;
+                            if (tempY > landscapeRows)
+                            {
+                                target_y = tempY % landscapeRows;
+                            }
+                            else
+                            {
+                                target_y = tempY;
+                            }
                         }
-                    }
-                    if (tempX < 1)
-                    {
-                        target_x = landscapeCols + tempX;
-                    }
-                    else
-                    {
-                        if (tempX > landscapeCols)
+                        if (tempX < 1)
                         {
-                            target_x = tempX % landscapeCols;
+                            target_x = landscapeCols + tempX;
                         }
                         else
                         {
-                            target_x = tempX;
+                            if (tempX > landscapeCols)
+                            {
+                                target_x = tempX % landscapeCols;
+                            }
+                            else
+                            {
+                                target_x = tempX;
+                            }
                         }
-                    }
 
+                    }
+                    RelativeLocation targetLocation = new RelativeLocation(target_y - site.Location.Row, target_x - site.Location.Column);
+                    Site targetSite = site.GetNeighbor(targetLocation);
+                    SiteVars.Dispersed[targetSite]++;
                 }
-                RelativeLocation targetLocation = new RelativeLocation(target_y - site.Location.Row, target_x - site.Location.Column);
-                Site targetSite = site.GetNeighbor(targetLocation);
-                SiteVars.Dispersed[targetSite] ++;
             }
         }
 
@@ -391,6 +370,8 @@ namespace Landis.Extension.SpruceBudworm
                     r = Math.Sqrt(dx * dx + dy * dy);
                     p = dispersal_prob(x, y);                    
                     dir = Math.Asin(dy / r);
+                    if (r == 0)
+                        dir = 0;
                     if (x == 0 && y == 0)
                     {
                         cumulative_p += p;
