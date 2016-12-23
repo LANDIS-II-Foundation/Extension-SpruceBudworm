@@ -34,6 +34,9 @@ namespace Landis.Extension.SpruceBudworm
     {
         private static Dictionary<double, double> dispersal_probability;
         private static new List<Triplet> cumulative_dispersal_probability; //(dir,distance,prob)
+        private static Dictionary<double,int> cum_prob_benchmarks; //(prob,index)
+        private static Dictionary<double, int> cum_prob_benchmarks_tail; //(prob,index)
+        private static Dictionary<double, int> cum_prob_benchmarks_tail2; //(prob,index)
         private static int max_dispersal_distance_pixels;
 
         public static void CalculateDispersal()
@@ -143,6 +146,7 @@ namespace Landis.Extension.SpruceBudworm
             int disperseCount = (int)Math.Round(SiteVars.LDDout[site]);
             if (disperseCount > 0)
             {
+                //PlugIn.ModelCore.UI.WriteLine("Site: " + site.ToString() + " LDD Dispersed:  " + disperseCount.ToString());
                 List<Pair> disperseList = new List<Pair>();
 
                 PlugIn.ModelCore.ContinuousUniformDistribution.Alpha = 0;
@@ -160,7 +164,111 @@ namespace Landis.Extension.SpruceBudworm
                 randList.Sort();
                 int randIndex = 0;
 
-                foreach (Triplet myTriplet in cumulative_dispersal_probability)
+                int probIndex = 0;
+                while (randIndex < randList.Count)
+                {
+                    double randValue = randList[randIndex];
+                    int tempProbIndex = probIndex;
+                    if (randValue > cumulative_dispersal_probability[cumulative_dispersal_probability.Count() - 1].Prob)
+                    {
+                        probIndex = cumulative_dispersal_probability.Count() - 1;
+                        Triplet myTriplet = cumulative_dispersal_probability[probIndex];
+                        double cumProb = myTriplet.Prob;
+                        Pair locationPair = new Pair(myTriplet.Dir, myTriplet.Distance);
+                        disperseList.Add(locationPair);
+                        randIndex++;
+                    }
+                    else
+                    {
+                        double randValRound = Math.Floor(randValue * 1000) / 1000;
+                        if (randValRound > 0)
+                        {
+                            if (cum_prob_benchmarks.ContainsKey(randValRound))
+                            {
+                                tempProbIndex = cum_prob_benchmarks[randValRound];
+                            }
+                            else
+                            {
+                                randValRound = randValRound - 0.001;
+                                if (cum_prob_benchmarks.ContainsKey(randValRound))
+                                {
+                                    tempProbIndex = cum_prob_benchmarks[randValRound];
+                                }
+                            }
+                            if (randValue > 0.997)
+                            {
+                                if (randValue > 0.999997)
+                                {
+                                    double randValRoundTail2 = Math.Floor(randValue * 100000000) / 100000000;
+                                    if (randValRoundTail2 > 0.99999999)
+                                    {
+                                        tempProbIndex = cum_prob_benchmarks_tail2[cum_prob_benchmarks_tail2.Keys.Max()];
+                                    }
+                                    else
+                                    {
+
+                                        if(cum_prob_benchmarks_tail2.ContainsKey(randValRoundTail2))
+                                        {
+                                            tempProbIndex = cum_prob_benchmarks_tail2[randValRoundTail2];
+                                        }
+                                        else
+                                        {
+                                            randValRoundTail2 = randValRoundTail2 - 0.00000001;
+                                            if (cum_prob_benchmarks_tail2.ContainsKey(randValRoundTail2))
+                                            {
+                                                tempProbIndex = cum_prob_benchmarks_tail2[randValRoundTail2];
+                                            }
+                                        }
+                                    }
+                                
+                                }
+                                else
+                                {
+                                    double randValRoundTail = Math.Floor(randValue * 1000000) / 1000000;
+                                    if (randValRoundTail > 0.997)
+                                    {
+                                        tempProbIndex = cum_prob_benchmarks_tail[cum_prob_benchmarks_tail.Keys.Max()];
+                                    }
+                                    else
+                                    {
+                                        if (cum_prob_benchmarks_tail.ContainsKey(randValRoundTail))
+                                        {
+                                            tempProbIndex = cum_prob_benchmarks_tail[randValRoundTail];
+                                        }
+                                        else
+                                        {
+                                            randValRoundTail = randValRoundTail - 0.000001;
+                                            if (cum_prob_benchmarks_tail.ContainsKey(randValRoundTail))
+                                            {
+                                                tempProbIndex = cum_prob_benchmarks_tail[randValRoundTail];
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }
+                            if (tempProbIndex > probIndex)
+                                probIndex = tempProbIndex;
+                        }
+
+                        while (probIndex < cumulative_dispersal_probability.Count())
+                        {
+                            Triplet myTriplet = cumulative_dispersal_probability[probIndex];
+                            double cumProb = myTriplet.Prob;
+                            if (cumProb > randValue)
+                            {
+                                Pair locationPair = new Pair(myTriplet.Dir, myTriplet.Distance);
+                                disperseList.Add(locationPair);
+                                randIndex++;
+                                break;
+                            }
+                            probIndex++;
+                        }
+                    }
+                }
+
+
+                /*foreach (Triplet myTriplet in cumulative_dispersal_probability)
                 {
                     double cumProb = myTriplet.Prob;
                     if (cumProb > randList[randIndex])
@@ -171,7 +279,7 @@ namespace Landis.Extension.SpruceBudworm
                         if (randIndex == randList.Count)
                             break;
                     }
-                }
+                }*/
 
                 foreach (Pair locationPair in disperseList)
                 {
@@ -353,6 +461,9 @@ namespace Landis.Extension.SpruceBudworm
             dispersal_probability = new Dictionary<double, double>();
             //cumulative_dispersal_probability = new Dictionary<double, Dictionary<double, double>>(); //Key 1 = direction, Key2 = distance
             cumulative_dispersal_probability = new List<Triplet>();
+            cum_prob_benchmarks = new Dictionary<double, int>();
+            cum_prob_benchmarks_tail = new Dictionary<double, int>();
+            cum_prob_benchmarks_tail2 = new Dictionary<double, int>();
             double max_dispersal_distance = max_dispersal_window();
             max_dispersal_distance_pixels = (int)(max_dispersal_distance / PlugIn.ModelCore.CellLength);
             dispersal_probability.Clear();
@@ -431,6 +542,50 @@ namespace Landis.Extension.SpruceBudworm
                 //cumulative_prob += dispersal_probability[r];
                 //cumulative_dispersal_probability[r] = cumulative_prob;
             }
+
+            double mark = 0.001;            
+            double mark_tail_start = 0.997001;
+            double mark_tail = mark_tail_start;
+            double mark_tail2_start = 0.99999701;
+            double mark_tail2 = mark_tail2_start;
+            int cumProbIndex = 0;
+            foreach (Triplet myTriplet in cumulative_dispersal_probability)
+            {
+                if((myTriplet.Prob >= mark) && (myTriplet.Prob < mark_tail_start))
+                {
+                    cum_prob_benchmarks.Add(mark, cumProbIndex);
+                    mark = Math.Round((mark + 0.001)* 1000) / 1000;
+                }
+                if ((myTriplet.Prob >= mark_tail) && (myTriplet.Prob < mark_tail2_start))
+                {
+                    cum_prob_benchmarks_tail.Add(mark_tail, cumProbIndex);
+                    mark_tail = Math.Round((mark_tail + 0.000001) * 1000000) / 1000000;
+                }
+                if (myTriplet.Prob >= mark_tail2)
+                {
+                    cum_prob_benchmarks_tail2.Add(mark_tail2, cumProbIndex);
+                    mark_tail2 = Math.Round((mark_tail2 + 0.00000001) * 100000000) / 100000000;
+                    if (mark_tail2 >= 1.0000000000000)
+                    {
+                        break;
+                    }
+                }
+                cumProbIndex++;
+            }
+
+            /*
+            // For testing purposes
+            string path1 = "C:/BRM/LANDIS_II/GitCode/Extension-SpruceBudworm/test/benchmarks.csv";
+            string path2 = "C:/BRM/LANDIS_II/GitCode/Extension-SpruceBudworm/test/benchmarks_tail.csv";
+            string path3 = "C:/BRM/LANDIS_II/GitCode/Extension-SpruceBudworm/test/benchmarks_tail2.csv";
+            String csvBenchmarks = String.Join(Environment.NewLine, cum_prob_benchmarks.Select(d => d.Key.ToString() + "," + d.Value.ToString()).ToArray());
+            String csvBenchmarksTail = String.Join(Environment.NewLine, cum_prob_benchmarks_tail.Select(d => d.Key.ToString() + "," + d.Value.ToString()).ToArray());
+            String csvBenchmarksTail2 = String.Join(Environment.NewLine, cum_prob_benchmarks_tail2.Select(d => d.Key.ToString() + "," + d.Value.ToString()).ToArray());
+            System.IO.File.WriteAllText(path1, csvBenchmarks);
+            System.IO.File.WriteAllText(path2, csvBenchmarksTail);
+            System.IO.File.WriteAllText(path3, csvBenchmarksTail2);
+             * */
+            
         }
         private static double max_dispersal_window()
         {
@@ -450,7 +605,7 @@ namespace Landis.Extension.SpruceBudworm
             }
             // maximum possible number of eggs to be dispersed by moths
             // Should this be succesion timestep?  If so how?
-            total_max_seeds = 10000 * PlugIn.Parameters.Timestep * PlugIn.ModelCore.CellLength * PlugIn.ModelCore.CellLength;
+            total_max_seeds = 10000 ;
 
             // stop when all seeds have been accounted for
             while (total_max_seeds - n > 1)
