@@ -99,7 +99,7 @@ namespace Landis.Extension.SpruceBudworm
                 LDDRatio = LDDHabitat * LDDFlight;
 
                 // Calculate LDD dispersers (16b)
-                double LDDout = SiteVars.EggCountFall[site] * LDDRatio;
+                double LDDout = SiteVars.EggCountFall[site] * LDDRatio; //Units: eggs/m2
                 SiteVars.LDDout[site] = LDDout;
                 SiteVars.SDDout[site] = SiteVars.EggCountFall[site] - LDDout;
 
@@ -341,6 +341,7 @@ namespace Landis.Extension.SpruceBudworm
                     RelativeLocation targetLocation = new RelativeLocation(target_y - site.Location.Row, target_x - site.Location.Column);
                     Site targetSite = site.GetNeighbor(targetLocation);
                     SiteVars.Dispersed[targetSite]++;
+                    //SiteVars.Dispersed[targetSite] = SiteVars.Dispersed[targetSite] + 100; // Each moth carries 100 eggs
                 }
             }
         }
@@ -603,9 +604,8 @@ namespace Landis.Extension.SpruceBudworm
             {
                 max_dist = Double.PositiveInfinity;
             }
-            // maximum possible number of eggs to be dispersed by moths
-            // Should this be succesion timestep?  If so how?
-            total_max_seeds = 10000 ;
+            // maximum possible number of moths to be dispersed 
+            total_max_seeds = 500 * PlugIn.ModelCore.CellLength * PlugIn.ModelCore.CellLength ;
 
             // stop when all seeds have been accounted for
             while (total_max_seeds - n > 1)

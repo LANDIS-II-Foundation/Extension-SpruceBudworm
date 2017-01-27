@@ -682,8 +682,10 @@ namespace Landis.Extension.SpruceBudworm
             int maxCells = 0;
             double sumDensity = 0;
             FindNeighborSites(out siteList, out maxCells,out sumDensity, site, enemyFilterRadius, "enemies");
-            // Calculate number to disperse to each site in neighborhood
             int siteCount = siteList.Count;
+            double avgDensity = sumDensity / siteCount;
+            double adjSumDensity = sumDensity + (avgDensity * (maxCells - siteCount));
+
             double dispersedCount = 0;
             // Calculate number to disperse to each site in neighborhood
             if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
@@ -703,13 +705,25 @@ namespace Landis.Extension.SpruceBudworm
                     double biasIndex = SiteVars.FilteredBudwormSpring[disperseSite] / sumDensity;
                     dispersedCount = SiteVars.EnemyCount[site] * biasIndex;
                 }
+                else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
+                {
+                    double biasIndex = SiteVars.FilteredBudwormSpring[disperseSite] / adjSumDensity;
+                    dispersedCount = SiteVars.EnemyCount[site] * biasIndex;
+                }
                 SiteVars.FilteredEnemyCount[disperseSite] += dispersedCount;
                 sumDispersed += dispersedCount;
             }
-            // Add assumed input from non-active neigbors is EdgeEffect == Same
+            // Add assumed input from non-active neigbors if EdgeEffect == Same or AvgBiased
             if (edgeEffect.Equals("Same", StringComparison.OrdinalIgnoreCase))
             {
                 double siteInput = ((maxCells - siteCount) * dispersedCount);
+                SiteVars.FilteredEnemyCount[site] += siteInput;
+                sumDispersed += siteInput;
+            }
+            else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
+            {
+                double siteBias = SiteVars.FilteredBudwormSpring[site] / adjSumDensity;
+                double siteInput = (maxCells - siteCount) * SiteVars.EnemyCount[site] * siteBias;
                 SiteVars.FilteredEnemyCount[site] += siteInput;
                 sumDispersed += siteInput;
             }
@@ -723,8 +737,10 @@ namespace Landis.Extension.SpruceBudworm
             int maxCells = 0;
             double sumDensity = 0;
             FindNeighborSites(out siteList, out maxCells, out sumDensity, site, sddRadius, "sdd");
-            // Calculate number to disperse to each site in neighborhood
             int siteCount = siteList.Count;
+            double avgDensity = sumDensity / siteCount;
+            double adjSumDensity = sumDensity + (avgDensity * (maxCells - siteCount));
+
             double dispersedCount = 0;
             // Calculate number to disperse to each site in neighborhood
             if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
@@ -744,13 +760,25 @@ namespace Landis.Extension.SpruceBudworm
                     double biasIndex = SiteVars.TotalHostFoliage[disperseSite] / sumDensity;
                     dispersedCount = SiteVars.SDDout[site] * biasIndex;
                 }
+                else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
+                {
+                    double biasIndex = SiteVars.TotalHostFoliage[disperseSite] / adjSumDensity;
+                    dispersedCount = SiteVars.SDDout[site] * biasIndex;
+                }
                 SiteVars.Dispersed[disperseSite] += dispersedCount;
                 sumDispersed += dispersedCount;
             }
-            // Add assumed input from non-active neigbors is EdgeEffect == Same
+            // Add assumed input from non-active neigbors if EdgeEffect == Same or AvgBiased
             if (edgeEffect.Equals("Same", StringComparison.OrdinalIgnoreCase))
             {
                 double siteInput = ((maxCells - siteCount) * dispersedCount);
+                SiteVars.Dispersed[site] += siteInput;
+                sumDispersed += siteInput;
+            }
+            else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
+            {
+                double siteBias = SiteVars.TotalHostFoliage[site] / adjSumDensity;
+                double siteInput = (maxCells - siteCount) * SiteVars.SDDout[site] * siteBias;
                 SiteVars.Dispersed[site] += siteInput;
                 sumDispersed += siteInput;
             }

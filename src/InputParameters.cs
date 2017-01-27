@@ -542,7 +542,8 @@ namespace Landis.Extension.SpruceBudworm
         /// Same:  Nonactive cells have same number as focal cell
         /// Absorbed:  Nonactive cells are sinks and provide nothing to other cells
         /// Reflected: Nonactive cells do not receive anything, all is dispersed among active cells
-        /// Biased:  Budworm counts dispersed in proprtion to total host foilage within neighborhood
+        /// Biased:  Budworm counts dispersed in proportion to total host foilage within neighborhood
+        /// AvgBiased:  Budworm counts dispersed in proportion to total host foilage within neighborhood, but nonactives assumed to have same eggs to disperse and same avg host foliage as rest of neighborhood
         /// </summary>
         public string SDDEdgeEffect
         {
@@ -776,6 +777,8 @@ namespace Landis.Extension.SpruceBudworm
         /// Same:  Nonactive cells have same number as focal cell
         /// Absorbed:  Nonactive cells are sinks and provide nothing to other cells
         /// Reflected: Nonactive cells do not receive anything, all is dispersed among active cells
+        /// Biased:  Enemies dispersed in proportion to total spruce budworm density within neighborhood
+        /// AvgBiased:  Enemies dispersed in proportion to total spruce budworm density within neighborhood, but nonactives assumed to have same enemies to disperse and same avg spruce budworm density as rest of neighborhood
         /// </summary>
         public string EnemyEdgeEffect
         {
