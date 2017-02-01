@@ -209,43 +209,39 @@ namespace Landis.Extension.SpruceBudworm
             parameters.SDDRadius = sddRadius.Value;
 
             // Read SDDEdge Effect parameter
-            ReadName("SDDEdgeEffectTable");
+            InputVar<string> sddEdgeEffect = new InputVar<string>("SDDEdgeEffect");
+            ReadVar(sddEdgeEffect);
+            parameters.SDDEdgeEffect = sddEdgeEffect.Value;
 
             Dictionary<string, int> lineNumbers = new Dictionary<string, int>();
             InputVar<string> ecoName = new InputVar<string>("SDDEcoregion");
-            InputVar<string> sddEdgeEffect = new InputVar<string>("SDDEdgeEffect");
+
             while (!AtEndOfInput && CurrentName != "Emigration")
             {
                 currentLine = new StringReader(CurrentLine);
                 ReadValue(ecoName, currentLine);
-                if (ecoName.Value.ToString().Equals("MapEdge",StringComparison.OrdinalIgnoreCase))
-                {
-                    ReadValue(sddEdgeEffect, currentLine);
-                    parameters.SDDEdgeEffect = sddEdgeEffect.Value;                   
-                }
+
+                IEcoregion ecoregion = EcoregionsDataset[ecoName.Value.Actual];
+                if (ecoregion == null)
+                    throw new InputValueException(ecoName.Value.String,
+                                                  "{0} is not an ecoregion name.",
+                                                  ecoName.Value.String);
+                int lineNumber;
+                if (lineNumbers.TryGetValue(ecoregion.Name, out lineNumber))
+                    throw new InputValueException(ecoName.Value.String,
+                                                  "The ecoregion {0} was previously used on line {1}",
+                                                  ecoName.Value.String, lineNumber);
                 else
+                    lineNumbers[ecoregion.Name] = LineNumber;
+                IEcoParameters ecoParms = new EcoParameters();
+                if (parameters.EcoParameters[ecoregion.Index] != null)
                 {
-                    IEcoregion ecoregion = EcoregionsDataset[ecoName.Value.Actual];
-                    if (ecoregion == null)
-                        throw new InputValueException(ecoName.Value.String,
-                                                      "{0} is not an ecoregion name.",
-                                                      ecoName.Value.String);
-                    int lineNumber;
-                    if (lineNumbers.TryGetValue(ecoregion.Name, out lineNumber))
-                        throw new InputValueException(ecoName.Value.String,
-                                                      "The ecoregion {0} was previously used on line {1}",
-                                                      ecoName.Value.String, lineNumber);
-                    else
-                        lineNumbers[ecoregion.Name] = LineNumber;
-                    IEcoParameters ecoParms = new EcoParameters();
-                    if(parameters.EcoParameters[ecoregion.Index] != null)
-                    {
-                        ecoParms = parameters.EcoParameters[ecoregion.Index];
-                    }
-                    ReadValue(sddEdgeEffect, currentLine);
-                    ecoParms.SDDEdgeEffect = sddEdgeEffect.Value;
-                    parameters.EcoParameters[ecoregion.Index] = ecoParms;
+                    ecoParms = parameters.EcoParameters[ecoregion.Index];
                 }
+                ReadValue(sddEdgeEffect, currentLine);
+                ecoParms.SDDEdgeEffect = sddEdgeEffect.Value;
+                parameters.EcoParameters[ecoregion.Index] = ecoParms;
+
                 CheckNoDataAfter("the " + sddEdgeEffect.Name + " column",
                                  currentLine);
                 GetNextLine();
@@ -319,43 +315,39 @@ namespace Landis.Extension.SpruceBudworm
             parameters.L2FilterRadius = l2FilterRadius.Value;
 
             // Read L2Edge Effect parameter
-            ReadName("L2EdgeEffectTable");
+            InputVar<string> l2EdgeEffect = new InputVar<string>("L2EdgeEffect");
+            ReadVar(l2EdgeEffect);
+            parameters.L2EdgeEffect = l2EdgeEffect.Value;
 
             lineNumbers = new Dictionary<string, int>();
             ecoName = new InputVar<string>("L2Ecoregion");
-            InputVar<string> l2EdgeEffect = new InputVar<string>("L2EdgeEffect");
+
             while (!AtEndOfInput && CurrentName != "EnemyFilterRadius")
             {
                 currentLine = new StringReader(CurrentLine);
                 ReadValue(ecoName, currentLine);
-                if (ecoName.Value.ToString().Equals("MapEdge", StringComparison.OrdinalIgnoreCase))
-                {
-                    ReadValue(l2EdgeEffect, currentLine);
-                    parameters.L2EdgeEffect = l2EdgeEffect.Value;
-                }
+
+                IEcoregion ecoregion = EcoregionsDataset[ecoName.Value.Actual];
+                if (ecoregion == null)
+                    throw new InputValueException(ecoName.Value.String,
+                                                  "{0} is not an ecoregion name.",
+                                                  ecoName.Value.String);
+                int lineNumber;
+                if (lineNumbers.TryGetValue(ecoregion.Name, out lineNumber))
+                    throw new InputValueException(ecoName.Value.String,
+                                                  "The ecoregion {0} was previously used on line {1}",
+                                                  ecoName.Value.String, lineNumber);
                 else
+                    lineNumbers[ecoregion.Name] = LineNumber;
+                IEcoParameters ecoParms = new EcoParameters();
+                if (parameters.EcoParameters[ecoregion.Index] != null)
                 {
-                    IEcoregion ecoregion = EcoregionsDataset[ecoName.Value.Actual];
-                    if (ecoregion == null)
-                        throw new InputValueException(ecoName.Value.String,
-                                                      "{0} is not an ecoregion name.",
-                                                      ecoName.Value.String);
-                    int lineNumber;
-                    if (lineNumbers.TryGetValue(ecoregion.Name, out lineNumber))
-                        throw new InputValueException(ecoName.Value.String,
-                                                      "The ecoregion {0} was previously used on line {1}",
-                                                      ecoName.Value.String, lineNumber);
-                    else
-                        lineNumbers[ecoregion.Name] = LineNumber;
-                    IEcoParameters ecoParms = new EcoParameters();
-                    if (parameters.EcoParameters[ecoregion.Index] != null)
-                    {
-                        ecoParms = parameters.EcoParameters[ecoregion.Index];
-                    }
-                    ReadValue(l2EdgeEffect, currentLine);
-                    ecoParms.L2EdgeEffect = l2EdgeEffect.Value;
-                    parameters.EcoParameters[ecoregion.Index] = ecoParms;
+                    ecoParms = parameters.EcoParameters[ecoregion.Index];
                 }
+                ReadValue(l2EdgeEffect, currentLine);
+                ecoParms.L2EdgeEffect = l2EdgeEffect.Value;
+                parameters.EcoParameters[ecoregion.Index] = ecoParms;
+
                 CheckNoDataAfter("the " + l2EdgeEffect.Name + " column",
                                  currentLine);
                 GetNextLine();
@@ -367,43 +359,38 @@ namespace Landis.Extension.SpruceBudworm
             parameters.EnemyFilterRadius = enemyFilterRadius.Value;
 
             // Read EnemyEdge Effect parameter
-            ReadName("EnemyEdgeEffectTable");
+            InputVar<string> enemyEdgeEffect = new InputVar<string>("EnemyEdgeEffect");
+            ReadVar(enemyEdgeEffect);
+            parameters.EnemyEdgeEffect = enemyEdgeEffect.Value;
 
             lineNumbers = new Dictionary<string, int>();
             ecoName = new InputVar<string>("L2Ecoregion");
-            InputVar<string> enemyEdgeEffect = new InputVar<string>("EnemyEdgeEffect");
             while (!AtEndOfInput && CurrentName != "MaxBudwormDensity")
             {
                 currentLine = new StringReader(CurrentLine);
                 ReadValue(ecoName, currentLine);
-                if (ecoName.Value.ToString().Equals("MapEdge", StringComparison.OrdinalIgnoreCase))
-                {
-                    ReadValue(enemyEdgeEffect, currentLine);
-                    parameters.EnemyEdgeEffect = enemyEdgeEffect.Value;
-                }
+
+                IEcoregion ecoregion = EcoregionsDataset[ecoName.Value.Actual];
+                if (ecoregion == null)
+                    throw new InputValueException(ecoName.Value.String,
+                                                  "{0} is not an ecoregion name.",
+                                                  ecoName.Value.String);
+                int lineNumber;
+                if (lineNumbers.TryGetValue(ecoregion.Name, out lineNumber))
+                    throw new InputValueException(ecoName.Value.String,
+                                                  "The ecoregion {0} was previously used on line {1}",
+                                                  ecoName.Value.String, lineNumber);
                 else
+                    lineNumbers[ecoregion.Name] = LineNumber;
+                IEcoParameters ecoParms = new EcoParameters();
+                if (parameters.EcoParameters[ecoregion.Index] != null)
                 {
-                    IEcoregion ecoregion = EcoregionsDataset[ecoName.Value.Actual];
-                    if (ecoregion == null)
-                        throw new InputValueException(ecoName.Value.String,
-                                                      "{0} is not an ecoregion name.",
-                                                      ecoName.Value.String);
-                    int lineNumber;
-                    if (lineNumbers.TryGetValue(ecoregion.Name, out lineNumber))
-                        throw new InputValueException(ecoName.Value.String,
-                                                      "The ecoregion {0} was previously used on line {1}",
-                                                      ecoName.Value.String, lineNumber);
-                    else
-                        lineNumbers[ecoregion.Name] = LineNumber;
-                    IEcoParameters ecoParms = new EcoParameters();
-                    if (parameters.EcoParameters[ecoregion.Index] != null)
-                    {
-                        ecoParms = parameters.EcoParameters[ecoregion.Index];
-                    }
-                    ReadValue(enemyEdgeEffect, currentLine);
-                    ecoParms.EnemyEdgeEffect = enemyEdgeEffect.Value;
-                    parameters.EcoParameters[ecoregion.Index] = ecoParms;
+                    ecoParms = parameters.EcoParameters[ecoregion.Index];
                 }
+                ReadValue(enemyEdgeEffect, currentLine);
+                ecoParms.EnemyEdgeEffect = enemyEdgeEffect.Value;
+                parameters.EcoParameters[ecoregion.Index] = ecoParms;
+
                 CheckNoDataAfter("the " + enemyEdgeEffect.Name + " column",
                                  currentLine);
                 GetNextLine();

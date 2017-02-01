@@ -46,8 +46,7 @@ DefoliationLambda  0.255
 
 SDDRadius	1000
 
-SDDEdgeEffectTable
-Biased
+SDDEdgeEffect	Biased
 eco0	Reflect
 eco1	Absorb
 
@@ -70,15 +69,13 @@ MinSusceptibleAge  20
 
 L2FilterRadius  150
 
-L2EdgeEffectTable
-Unbiased
+L2EdgeEffect	Unbiased
 eco0	Absorb
 eco1	Absorb
 
 EnemyFilterRadius  150
 
-EnemyEdgeEffectTable
-Biased
+EnemyEdgeEffect	Biased
 eco0	Absorb
 eco1	Absorb
 
