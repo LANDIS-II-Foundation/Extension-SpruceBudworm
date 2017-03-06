@@ -124,7 +124,7 @@ namespace Landis.Extension.SpruceBudworm
                 }
 
                 // Calculate SDD dispersers (16b)
-                SiteVars.DisperseSDD(site, PlugIn.Parameters.SDDRadius, PlugIn.Parameters.SDDEdgeEffect);
+                SiteVars.DisperseSDD(site, PlugIn.Parameters.SDDRadius, PlugIn.Parameters.SDDEdgeEffect, PlugIn.Parameters.EcoParameters);
 
             }
             foreach (Site site in PlugIn.ModelCore.Landscape.ActiveSites)

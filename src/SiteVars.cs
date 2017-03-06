@@ -423,7 +423,7 @@ namespace Landis.Extension.SpruceBudworm
                     int n = m;
                 }                
                 //double filteredBudwormSpring = SpatialFilter(site, PlugIn.Parameters.L2FilterRadius);
-                double filteredBudwormSpring = LocalDispersal(site, PlugIn.Parameters.L2FilterRadius, PlugIn.Parameters.L2EdgeEffect);
+                double filteredBudwormSpring = LocalDispersal(site, PlugIn.Parameters.L2FilterRadius, PlugIn.Parameters.L2EdgeEffect,PlugIn.Parameters.EcoParameters);
                 sumCountFiltered += filteredBudwormSpring;
                 
             }
@@ -445,7 +445,7 @@ namespace Landis.Extension.SpruceBudworm
             {
                 // spatial average filter spring enemy counts
                 // Spatial filter in neighborhood
-                double filteredEnemySpring = LocalDispersalEnemies(site, PlugIn.Parameters.EnemyFilterRadius, PlugIn.Parameters.EnemyEdgeEffect);
+                double filteredEnemySpring = LocalDispersalEnemies(site, PlugIn.Parameters.EnemyFilterRadius, PlugIn.Parameters.EnemyEdgeEffect,PlugIn.Parameters.EcoParameters);
                 sumEnemyFiltered += filteredEnemySpring;
             }
 
@@ -639,22 +639,24 @@ namespace Landis.Extension.SpruceBudworm
         }
         //---------------------------------------------------------------------
         // This disperses local count among self and neighbors
-        public static double LocalDispersal(Site site, double l2FilterRadius, string edgeEffect)
+        public static double LocalDispersal(Site site, double l2FilterRadius, string edgeEffect, IEcoParameters[] ecoParameters)
         {
             List<Site> siteList = new List<Site>();
             int maxCells = 0;
             double sumDensity = 0;
-            FindNeighborSites(out siteList, out maxCells, out sumDensity, site, l2FilterRadius, "l2");
+            FindNeighborSites(out siteList, out maxCells, out sumDensity, site, l2FilterRadius, "l2", ecoParameters);
             int siteCount = siteList.Count;
             double dispersedCount = 0;
             // Calculate number to disperse to each site in neighborhood
-            if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
+            if (edgeEffect.Equals("Unbiased", StringComparison.OrdinalIgnoreCase))
             {
-                dispersedCount = SiteVars.BudwormCountSpring[site] / siteCount;
+                dispersedCount = SiteVars.BudwormCountSpring[site] / maxCells;
             }
             else
             {
-                dispersedCount = SiteVars.BudwormCountSpring[site] / maxCells;
+                //throw error
+                string mesg = string.Format("L2EdgeEffect must be Unbiased");
+                throw new System.ApplicationException(mesg);
             }
 
             // Disperse to all neighbor sites
@@ -665,38 +667,32 @@ namespace Landis.Extension.SpruceBudworm
                 sumDispersed += dispersedCount;
             }
 
-            // Add assumed input from non-active neigbors is EdgeEffect == Same
-            if (edgeEffect.Equals("Same", StringComparison.OrdinalIgnoreCase))
-            {
-                double siteInput = ((maxCells - siteCount) * dispersedCount);
-                SiteVars.FilteredBudwormSpring[site] += siteInput ;
-                sumDispersed += siteInput;
-            }
+            // With wrapping we do not need to assum inputs from non-active cells
+            //// Add assumed input from non-active neigbors is EdgeEffect == Same
+            //if (edgeEffect.Equals("Same", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    double siteInput = ((maxCells - siteCount) * dispersedCount);
+            //    SiteVars.FilteredBudwormSpring[site] += siteInput ;
+            //    sumDispersed += siteInput;
+            //}
 
             return sumDispersed;
         }
         //---------------------------------------------------------------------
         // This disperses local count among self and neighbors
-        public static double LocalDispersalEnemies(Site site, double enemyFilterRadius, string edgeEffect)
+        public static double LocalDispersalEnemies(Site site, double enemyFilterRadius, string edgeEffect, IEcoParameters[] ecoParameters)
         {
             List<Site> siteList = new List<Site>();
             int maxCells = 0;
             double sumDensity = 0;
-            FindNeighborSites(out siteList, out maxCells,out sumDensity, site, enemyFilterRadius, "enemies");
+            FindNeighborSites(out siteList, out maxCells, out sumDensity, site, enemyFilterRadius, "enemies", ecoParameters);
             int siteCount = siteList.Count;
             double avgDensity = sumDensity / siteCount;
             double adjSumDensity = sumDensity + (avgDensity * (maxCells - siteCount));
-
             double dispersedCount = 0;
-            // Calculate number to disperse to each site in neighborhood
-            if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
-            {
-                dispersedCount = SiteVars.EnemyCount[site] / siteCount;
-            }
-            else
-            {
-                dispersedCount = SiteVars.EnemyCount[site] / maxCells;
-            }
+            // Calculate number to disperse to each site in neighborhood           
+            dispersedCount = SiteVars.EnemyCount[site] / maxCells; // For Unbiased
+
             // Disperse to all neighbor sites
             double sumDispersed = 0;
             foreach (Site disperseSite in siteList)
@@ -706,53 +702,43 @@ namespace Landis.Extension.SpruceBudworm
                     double biasIndex = SiteVars.FilteredBudwormSpring[disperseSite] / sumDensity;
                     dispersedCount = SiteVars.EnemyCount[site] * biasIndex;
                 }
-                else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
-                {
-                    double biasIndex = SiteVars.FilteredBudwormSpring[disperseSite] / adjSumDensity;
-                    dispersedCount = SiteVars.EnemyCount[site] * biasIndex;
-                }
                 SiteVars.FilteredEnemyCount[disperseSite] += dispersedCount;
                 sumDispersed += dispersedCount;
             }
-            // Add assumed input from non-active neigbors if EdgeEffect == Same or AvgBiased
-            if (edgeEffect.Equals("Same", StringComparison.OrdinalIgnoreCase))
-            {
-                double siteInput = ((maxCells - siteCount) * dispersedCount);
-                SiteVars.FilteredEnemyCount[site] += siteInput;
-                sumDispersed += siteInput;
-            }
-            else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
-            {
-                double siteBias = SiteVars.FilteredBudwormSpring[site] / adjSumDensity;
-                double siteInput = (maxCells - siteCount) * SiteVars.EnemyCount[site] * siteBias;
-                SiteVars.FilteredEnemyCount[site] += siteInput;
-                sumDispersed += siteInput;
-            }
+            // With wrapping we do not need to assum inputs from non-active cells
+            //// Add assumed input from non-active neigbors if EdgeEffect == Same or AvgBiased
+            //if (edgeEffect.Equals("Same", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    double siteInput = ((maxCells - siteCount) * dispersedCount);
+            //    SiteVars.FilteredEnemyCount[site] += siteInput;
+            //    sumDispersed += siteInput;
+            //}
+            //else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    double siteBias = SiteVars.FilteredBudwormSpring[site] / adjSumDensity;
+            //    double siteInput = (maxCells - siteCount) * SiteVars.EnemyCount[site] * siteBias;
+            //    SiteVars.FilteredEnemyCount[site] += siteInput;
+            //    sumDispersed += siteInput;
+            //}
             return sumDispersed;
         }
 
          // This disperses local count among self and neighbors
         // Old method
-        public static double DisperseSDD(Site site, double sddRadius, string edgeEffect)
+        public static double DisperseSDD(Site site, double sddRadius, string edgeEffect, IEcoParameters[] ecoParameters)
         {
             List<Site> siteList = new List<Site>();  //List of cells to disperse to (takes into account edge effects)
             int maxCells = 0;  //Total cells in the neighborhood regardless of edge effects
             double sumDensity = 0;  //Sum of densities across sites (takes into account edge effects)
-            FindNeighborSites(out siteList, out maxCells, out sumDensity, site, sddRadius, "sdd");
+            FindNeighborSites(out siteList, out maxCells, out sumDensity, site, sddRadius, "sdd", ecoParameters);
             int siteCount = siteList.Count;  //Number if cells to disperse to
             double avgDensity = sumDensity / siteCount;  //Average density per cell
             double adjSumDensity = sumDensity + (avgDensity * (maxCells - siteCount));
 
             double dispersedCount = 0;
             // Calculate number to disperse to each site in neighborhood
-            if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
-            {
-                dispersedCount = SiteVars.SDDout[site] / (double)siteCount;
-            }
-            else
-            {
-                dispersedCount = SiteVars.SDDout[site] / (double)maxCells;
-            }
+            dispersedCount = SiteVars.SDDout[site] / (double)maxCells; //For Unbiased
+         
             // Disperse to all neighbor sites
             double sumDispersed = 0;
             foreach (Site disperseSite in siteList)
@@ -762,86 +748,82 @@ namespace Landis.Extension.SpruceBudworm
                     double biasIndex = SiteVars.TotalHostFoliage[disperseSite] / sumDensity;
                     dispersedCount = SiteVars.SDDout[site] * biasIndex;
                 }
-                else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
-                {
-                    double biasIndex = SiteVars.TotalHostFoliage[disperseSite] / adjSumDensity;
-                    dispersedCount = SiteVars.SDDout[site] * biasIndex;
-                }
                 SiteVars.Dispersed[disperseSite] += dispersedCount;
                 sumDispersed += dispersedCount;
             }
-            // Add assumed input from non-active neigbors if EdgeEffect == Same or AvgBiased
-            if (edgeEffect.Equals("Same", StringComparison.OrdinalIgnoreCase))
-            {
-                double siteInput = ((maxCells - siteCount) * dispersedCount);
-                SiteVars.Dispersed[site] += siteInput;
-                sumDispersed += siteInput;
-            }
-            else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
-            {
-                double siteBias = SiteVars.TotalHostFoliage[site] / adjSumDensity;
-                double siteInput = (maxCells - siteCount) * SiteVars.SDDout[site] * siteBias;
-                SiteVars.Dispersed[site] += siteInput;
-                sumDispersed += siteInput;
-            }
+            // With wrapping we do not need to assum inputs from non-active cells
+            //// Add assumed input from non-active neigbors if EdgeEffect == Same or AvgBiased
+            //if (edgeEffect.Equals("Same", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    double siteInput = ((maxCells - siteCount) * dispersedCount);
+            //    SiteVars.Dispersed[site] += siteInput;
+            //    sumDispersed += siteInput;
+            //}
+            //else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
+            //{
+            //    double siteBias = SiteVars.TotalHostFoliage[site] / adjSumDensity;
+            //    double siteInput = (maxCells - siteCount) * SiteVars.SDDout[site] * siteBias;
+            //    SiteVars.Dispersed[site] += siteInput;
+            //    sumDispersed += siteInput;
+            //}
             return sumDispersed;
         }
         //-------------------------------------------------------
         // This disperses local count among self and neighbors
-        // Updated method
-        public static double DisperseSDD(Site site, double sddRadius, string edgeEffect, IEcoParameters[] ecoParameters)
-        {
-            List<Site> siteList = new List<Site>();  //List of cells to disperse to (takes into account edge effects)
-            int maxCells = 0;  //Total cells in the neighborhood 
-            double sumDensity = 0;  //Sum of densities across sites (takes into account edge effects)
-            FindNeighborSites(out siteList, out maxCells, out sumDensity, site, sddRadius, "sdd", ecoParameters, edgeEffect);
-            int siteCount = siteList.Count;  //Number if cells to disperse to
-            double avgDensity = sumDensity / siteCount;  //Average density per cell
-            double adjSumDensity = sumDensity + (avgDensity * (maxCells - siteCount));
+        // MOdified method - Replaced
+        //public static double DisperseSDD(Site site, double sddRadius, string edgeEffect, IEcoParameters[] ecoParameters)
+        //{
+        //    List<Site> siteList = new List<Site>();  //List of cells to disperse to (takes into account edge effects)
+        //    int maxCells = 0;  //Total cells in the neighborhood 
+        //    double sumDensity = 0;  //Sum of densities across sites (takes into account edge effects)
+        //    FindNeighborSites(out siteList, out maxCells, out sumDensity, site, sddRadius, "sdd", ecoParameters, edgeEffect);
+        //    int siteCount = siteList.Count;  //Number if cells to disperse to
+        //    double avgDensity = sumDensity / siteCount;  //Average density per cell
+        //    double adjSumDensity = sumDensity + (avgDensity * (maxCells - siteCount));
 
-            double dispersedCount = 0;
-            // Calculate number to disperse to each site in neighborhood
-            if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
-            {
-                dispersedCount = SiteVars.SDDout[site] / (double)siteCount;
-            }
-            else if (edgeEffect.Equals("Absorb", StringComparison.OrdinalIgnoreCase))
-            {
-                dispersedCount = SiteVars.SDDout[site] / (double)maxCells;
-            }
-            // Disperse to all neighbor sites
-            double sumDispersed = 0;
-            foreach (Site disperseSite in siteList)
-            {
-                if (edgeEffect.Equals("Biased", StringComparison.OrdinalIgnoreCase))
-                {
-                    double biasIndex = SiteVars.TotalHostFoliage[disperseSite] / sumDensity;
-                    dispersedCount = SiteVars.SDDout[site] * biasIndex;
-                }
-                else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
-                {
-                    double biasIndex = SiteVars.TotalHostFoliage[disperseSite] / adjSumDensity;
-                    dispersedCount = SiteVars.SDDout[site] * biasIndex;
-                }
-                SiteVars.Dispersed[disperseSite] += dispersedCount;
-                sumDispersed += dispersedCount;
-            }
-            // Add assumed input from non-active neigbors if EdgeEffect == Same or AvgBiased
-            if (edgeEffect.Equals("Same", StringComparison.OrdinalIgnoreCase))
-            {
-                double siteInput = ((maxCells - siteCount) * dispersedCount);
-                SiteVars.Dispersed[site] += siteInput;
-                sumDispersed += siteInput;
-            }
-            else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
-            {
-                double siteBias = SiteVars.TotalHostFoliage[site] / adjSumDensity;
-                double siteInput = (maxCells - siteCount) * SiteVars.SDDout[site] * siteBias;
-                SiteVars.Dispersed[site] += siteInput;
-                sumDispersed += siteInput;
-            }
-            return sumDispersed;
-        }
+        //    double dispersedCount = 0;
+        //    // Calculate number to disperse to each site in neighborhood
+        //    if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        dispersedCount = SiteVars.SDDout[site] / (double)siteCount;
+        //    }
+        //    else if (edgeEffect.Equals("Absorb", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        dispersedCount = SiteVars.SDDout[site] / (double)maxCells;
+        //    }
+        //    // Disperse to all neighbor sites
+        //    double sumDispersed = 0;
+        //    foreach (Site disperseSite in siteList)
+        //    {
+        //        if (edgeEffect.Equals("Biased", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            double biasIndex = SiteVars.TotalHostFoliage[disperseSite] / sumDensity;
+        //            dispersedCount = SiteVars.SDDout[site] * biasIndex;
+        //        }
+        //        else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
+        //        {
+        //            double biasIndex = SiteVars.TotalHostFoliage[disperseSite] / adjSumDensity;
+        //            dispersedCount = SiteVars.SDDout[site] * biasIndex;
+        //        }
+        //        SiteVars.Dispersed[disperseSite] += dispersedCount;
+        //        sumDispersed += dispersedCount;
+        //    }
+        //    // Add assumed input from non-active neigbors if EdgeEffect == Same or AvgBiased
+        //    if (edgeEffect.Equals("Same", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        double siteInput = ((maxCells - siteCount) * dispersedCount);
+        //        SiteVars.Dispersed[site] += siteInput;
+        //        sumDispersed += siteInput;
+        //    }
+        //    else if (edgeEffect.Equals("AvgBiased", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        double siteBias = SiteVars.TotalHostFoliage[site] / adjSumDensity;
+        //        double siteInput = (maxCells - siteCount) * SiteVars.SDDout[site] * siteBias;
+        //        SiteVars.Dispersed[site] += siteInput;
+        //        sumDispersed += siteInput;
+        //    }
+        //    return sumDispersed;
+        //}
         //-------------------------------------------------------
         //// This disperses local count among self and neighbors biased by budworm count
         //public static double BiasedDispersalEnemies(Site site, double enemyFilterRadius, string edgeEffect)
@@ -868,6 +850,7 @@ namespace Landis.Extension.SpruceBudworm
         //    return sumDispersed;
         //}
         //-------------------------------------------------------
+        // Modified version - not working yet
         private static void FindNeighborSites(out List<Site> siteList, out int maxCells, out double sumDensity, Site site, double radius, string option, IEcoParameters[] ecoParameters, string mapEdgeEffect)
         {
             double CellLength = PlugIn.ModelCore.CellLength;
@@ -991,9 +974,140 @@ namespace Landis.Extension.SpruceBudworm
             maxCells = maxCellCount;
             sumDensity = tempSumDensity;
         }
+        //Modified code - wrapping, with ecoregion edge effects
+        private static void FindNeighborSites(out List<Site> siteList, out int maxCells, out double sumDensity, Site site, double radius, string option, IEcoParameters[] ecoParameters)
+        {
+            double CellLength = PlugIn.ModelCore.CellLength;
 
-        //Calculate the distance from a location to a center
-        //point (row and column = 0).
+            //List<RelativeLocation> neighborhood = new List<RelativeLocation>();
+
+            int numCellRadius = (int)(radius / CellLength);
+            //PlugIn.ModelCore.UI.WriteLine("NeighborRadius={0}, CellLength={1}, numCellRadius={2}",radius, CellLength, numCellRadius);
+            double centroidDistance = 0;
+            double cellLength = CellLength;
+
+            // Count the neighbor cells to disperse to (including source site)
+            List<Site> tempSiteList = new List<Site>();
+            int maxCellCount = 0;
+            double tempSumDensity = 0;
+            for (int row = (numCellRadius * -1); row <= numCellRadius; row++)
+            {
+                for (int col = (numCellRadius * -1); col <= numCellRadius; col++)
+                {
+                    centroidDistance = DistanceFromCenter(row, col);
+                    //PlugIn.ModelCore.Log.WriteLine("Centroid Distance = {0}.", centroidDistance);
+                    if (centroidDistance <= radius)
+                    {
+                        int j = col;
+                        int k = row;
+
+                        int target_x = site.Location.Column + j;
+                        int target_y = site.Location.Row + k;
+
+                        int landscapeRows = PlugIn.ModelCore.Landscape.Rows;
+                        int landscapeCols = PlugIn.ModelCore.Landscape.Columns;
+
+                        //remainRow=SIGN(C4)*MOD(ABS(C4),$B$1)
+                        int remainRow = Math.Sign(k) * (Math.Abs(k) % landscapeRows);
+                        int remainCol = Math.Sign(j) * (Math.Abs(j) % landscapeCols);
+                        //tempY=A4+H4
+                        int tempY = site.Location.Row + remainRow;
+                        int tempX = site.Location.Column + remainCol;
+                        //source_y=IF(J4<1,$B$1+J4,IF(J4>$B$1,MOD(J4,$B$1),J4))
+                        if (tempY < 1)
+                        {
+                            target_y = landscapeRows + tempY;
+                        }
+                        else
+                        {
+                            if (tempY > landscapeRows)
+                            {
+                                target_y = tempY % landscapeRows;
+                            }
+                            else
+                            {
+                                target_y = tempY;
+                            }
+                        }
+                        if (tempX < 1)
+                        {
+                            target_x = landscapeCols + tempX;
+                        }
+                        else
+                        {
+                            if (tempX > landscapeCols)
+                            {
+                                target_x = tempX % landscapeCols;
+                            }
+                            else
+                            {
+                                target_x = tempX;
+                            }
+                        }
+                        RelativeLocation targetLocation = new RelativeLocation(target_y - site.Location.Row, target_x - site.Location.Column);
+                        Site neighbor = site.GetNeighbor(targetLocation);
+                        IEcoregion ecoregion = PlugIn.ModelCore.Ecoregion[neighbor];
+                        if(ecoregion == null)
+                        {
+                            ecoregion = PlugIn.ModelCore.Ecoregions[0];
+                        } 
+                        string edgeEffect = ecoParameters[ecoregion.Index].L2EdgeEffect;
+                        double neighborDensity = 1.0;
+
+                        if (option == "enemies")
+                        {
+                            edgeEffect = ecoParameters[ecoregion.Index].EnemyEdgeEffect;
+                            neighborDensity = SiteVars.FilteredBudwormSpring[neighbor];
+                            
+                        }
+                        else if (option == "sdd")
+                        {
+                            edgeEffect = ecoParameters[ecoregion.Index].SDDEdgeEffect;
+                            neighborDensity = SiteVars.TotalHostFoliage[neighbor];
+                            
+                        }
+
+                        if (edgeEffect == null)
+                        {
+                                // in map, but no edge effect defined
+                                // treat as "Absorb"
+                                edgeEffect = "Absorb";
+                        }
+
+                       if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (neighbor.IsActive)
+                            {
+                                maxCellCount++;
+                                tempSiteList.Add(neighbor);
+                            }
+                            tempSumDensity += neighborDensity;
+                        }
+                        else if (edgeEffect.Equals("Absorb", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (neighbor.IsActive)
+                            {
+                                tempSiteList.Add(neighbor);
+                            }
+                            maxCellCount++;
+                            tempSumDensity += neighborDensity;
+                        }
+                        else
+                        {
+                            //throw error
+                            string mesg = string.Format("Edge effect for {0} is not Reflect, Absorb", option);
+                            throw new System.ApplicationException(mesg);
+                        }
+                    }
+                }
+            }
+            siteList = tempSiteList;
+            maxCells = maxCellCount;
+            sumDensity = tempSumDensity;
+            //return siteList;
+        }
+        //-------------------------------------------------------
+        //Original code - non-wrapping, no ecoregion edge effects
         private static void FindNeighborSites(out List<Site> siteList,out int maxCells,out double sumDensity, Site site, double radius, string option)
         {
             double CellLength = PlugIn.ModelCore.CellLength;
@@ -1056,7 +1170,7 @@ namespace Landis.Extension.SpruceBudworm
             sumDensity = tempSumDensity;
             //return siteList;
         }
-        //-------------------------------------------------------
+
         //Calculate the distance from a location to a center
         //point (row and column = 0).
         private static double DistanceFromCenter(double row, double column)
