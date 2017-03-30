@@ -1,0 +1,95 @@
+LandisData "Spruce Budworm"
+
+Timestep 1
+
+BudwormStartYear 10
+
+PopulationParameters
+<<rm	b	c	r'm	a'	b'	c'
+  2.5  8.011	1	0.039	1	1	9
+
+ScalingParameters
+<< m	n	
+1.0	1.0	<< Predatory parasites
+1.67	1.0	<< SBW prey
+
+InitialBudwormDensityMap  "../startdens_020_28.img"
+InitialEnemyDensityMap  "../startdens_020_28.img"
+
+
+OverwinterRandom
+<<mean	stdev
+  1	0
+
+FecundityRandom
+<<mean  stdev
+  1	0
+
+MatingEffect
+<<a	b	c
+5	0.542	1
+
+DeciduousProtection1 1.0
+DeciduousProtection2 0.1
+
+PhenologicalLimitation
+<<mean  stdev
+  1	0
+
+DefoliationFecundityReduction  Y
+
+GrowthReduction  Y
+
+Mortality  Y
+
+DefoliationLambda  0.255
+
+SDDRadius	0
+SDDEdgeEffect	Same
+
+Emigration
+<<MinLDD  HalfLDD  MaxLDD  MaxLDDProp
+0.25     0.5      0.80     0.80      << Values of 1.0  1.1  1.1  1.1 results in no emigration
+
+LDDDispersalKernel
+<< mean1  mean2  weight1
+   1000  2000  1.0
+
+
+WrapLDD  Y
+
+LDDSpeedUp	Y
+
+PositiveFecundityDispersal  N
+
+MinSusceptibleAge  20
+
+L2FilterRadius  150
+BudwormEdgeEffect  Same
+EnemyFilterRadius  150
+EnemyEdgeEffect  Same
+
+MaxBudwormDensity  10
+
+HostSpeciesList
+abiebals
+piceglau
+
+
+DeciduousSpeciesList
+poputrem
+acerrubr
+betupapy
+fraxnigr
+querelli
+
+
+PctDefolMapName  output\budworm\PctDefol-{timestep}.img
+MortalityMapName output\budworm\Mortality-{timestep}.img
+HostFoliageMapName output\budworm\HostFol-{timestep}.img
+BudwormDensityMapName output\budworm\SBWDensity-{timestep}.img
+EnemyDensityMapName output\budworm\EnemyDensity-{timestep}.img
+
+LogFile  output\budworm\budworm_log.csv
+
+

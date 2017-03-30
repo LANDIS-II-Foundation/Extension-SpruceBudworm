@@ -1,0 +1,13 @@
+LandisData  "Output Cohort Statistics"
+
+
+Timestep   1
+
+SpeciesAgeStats
+MapNames   output/spp_age_stats/{species}_{statistic}-{timestep}.img
+
+SiteAgeStats
+
+MapNames   output/spp_age_stats/AGE_{statistic}-{timestep}.img
+
+COUNT   		<< count of cohorts

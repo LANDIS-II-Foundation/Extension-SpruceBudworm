@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Landis.SpatialModeling;
+using System.Diagnostics;
 
 namespace Landis.Extension.SpruceBudworm
 {
@@ -33,7 +34,13 @@ namespace Landis.Extension.SpruceBudworm
     class Dispersal
     {
         private static Dictionary<double, double> dispersal_probability;
-        private static new List<Triplet> cumulative_dispersal_probability; //(dir,distance,prob)
+        private static List<Triplet> cumulative_dispersal_probability; //(dir,distance,prob)
+        private static List<int> dispersalIndex;
+        private static List<double> dispersalDir;
+        private static List<double> dispersalDist;
+        private static List<double> dispersalProb;
+        private static Array indexArray;
+        private static Array probArray;
         private static int max_dispersal_distance_pixels;
 
         public static void CalculateDispersal()
@@ -112,7 +119,8 @@ namespace Landis.Extension.SpruceBudworm
                     // Distribute LDD dispersers (17)          
                     if (PlugIn.Parameters.LDDSpeedUp)
                     {
-                        DisperseLDDSpeedUp(site, PlugIn.Parameters.WrapLDD);
+                        //DisperseLDDSpeedUp(site, PlugIn.Parameters.WrapLDD);
+                        DisperseLDDBinarySearch(site, PlugIn.Parameters.WrapLDD);
                     }
                     else
                     {
@@ -138,8 +146,114 @@ namespace Landis.Extension.SpruceBudworm
             }
         }
 
+        public static void DisperseLDDBinarySearch(Site site, bool wrapLDD)
+        {
+            var s1 = Stopwatch.StartNew();
+            int disperseCount = (int)Math.Round(SiteVars.LDDout[site]);
+
+            List<Pair> disperseList = new List<Pair>();
+
+            PlugIn.ModelCore.ContinuousUniformDistribution.Alpha = 0;
+            PlugIn.ModelCore.ContinuousUniformDistribution.Beta = 1;
+            double randNum = PlugIn.ModelCore.ContinuousUniformDistribution.NextDouble();
+
+            List<double> randList = new List<double>();
+
+            for (int i = 1; i <= disperseCount; i++)
+            {
+                randNum = PlugIn.ModelCore.ContinuousUniformDistribution.NextDouble();
+                randList.Add(randNum);
+            }
+
+            randList.Sort();
+
+            for (int i = 0; i < randList.Count(); i++)
+            {
+                double randVal = randList[i];
+                int pos = ~(Array.BinarySearch(probArray, randVal));
+
+                //take lower bound
+                //if (pos == 0)
+                //    pos = dispersalIndex[0];
+                //else
+                //    pos = dispersalIndex[pos - 1];
+
+                Pair locationPair = new Pair(dispersalDir[pos], dispersalDist[pos]);
+                disperseList.Add(locationPair);
+            }
+
+            s1.Stop();
+            Console.WriteLine("Time to search " + randList.Count() + " probability:" + ((double)(s1.Elapsed.TotalSeconds)).ToString("0.0000 s"));
+            Console.WriteLine();
+           
+
+            foreach (Pair locationPair in disperseList)
+            {
+                double dir = locationPair.First;
+                double distance = locationPair.Second;
+                double dj = Math.Cos(dir) * distance;
+                double dk = Math.Sin(dir) * distance;
+                int j = (int)Math.Round(dj / PlugIn.ModelCore.CellLength);
+                int k = (int)Math.Round(dk / PlugIn.ModelCore.CellLength);
+
+                int target_x = site.Location.Column + j;
+                int target_y = site.Location.Row + k;
+
+                // wrapLDD causes dispersers to stay within the landscape by wrapping the dispersal vector around the landscape (i.e., torus)
+                if (wrapLDD)
+                {
+                    int landscapeRows = PlugIn.ModelCore.Landscape.Rows;
+                    int landscapeCols = PlugIn.ModelCore.Landscape.Columns;
+
+                    //remainRow=SIGN(C4)*MOD(ABS(C4),$B$1)
+                    int remainRow = Math.Sign(k) * (Math.Abs(k) % landscapeRows);
+                    int remainCol = Math.Sign(j) * (Math.Abs(j) % landscapeCols);
+                    //tempY=A4+H4
+                    int tempY = site.Location.Row + remainRow;
+                    int tempX = site.Location.Column + remainCol;
+                    //source_y=IF(J4<1,$B$1+J4,IF(J4>$B$1,MOD(J4,$B$1),J4))
+                    if (tempY < 1)
+                    {
+                        target_y = landscapeRows + tempY;
+                    }
+                    else
+                    {
+                        if (tempY > landscapeRows)
+                        {
+                            target_y = tempY % landscapeRows;
+                        }
+                        else
+                        {
+                            target_y = tempY;
+                        }
+                    }
+                    if (tempX < 1)
+                    {
+                        target_x = landscapeCols + tempX;
+                    }
+                    else
+                    {
+                        if (tempX > landscapeCols)
+                        {
+                            target_x = tempX % landscapeCols;
+                        }
+                        else
+                        {
+                            target_x = tempX;
+                        }
+                    }
+
+                }
+                RelativeLocation targetLocation = new RelativeLocation(target_y - site.Location.Row, target_x - site.Location.Column);
+                Site targetSite = site.GetNeighbor(targetLocation);
+                SiteVars.Dispersed[targetSite]++;
+            }
+        
+        }
+
         public static void DisperseLDDSpeedUp(Site site, bool wrapLDD)
         {
+            var s1 = Stopwatch.StartNew();
             int disperseCount = (int)Math.Round(SiteVars.LDDout[site]);
 
             List<Pair> disperseList = new List<Pair>();
@@ -171,7 +285,9 @@ namespace Landis.Extension.SpruceBudworm
                             break;
                     }
                 }
-
+                s1.Stop();
+                Console.WriteLine("Time to search " + randList.Count() + " probability:" + ((double)(s1.Elapsed.TotalSeconds)).ToString("0.0000 s"));
+                Console.WriteLine();
                 /*foreach(KeyValuePair<double,Dictionary<double,double>> entry in cumulative_dispersal_probability)
                 {
                     double dir = entry.Key;
@@ -374,12 +490,17 @@ namespace Landis.Extension.SpruceBudworm
             dispersal_probability = new Dictionary<double, double>();
             //cumulative_dispersal_probability = new Dictionary<double, Dictionary<double, double>>(); //Key 1 = direction, Key2 = distance
             cumulative_dispersal_probability = new List<Triplet>();
+            dispersalIndex = new List<int>();
+                        dispersalDir = new List<double>();
+                        dispersalDist = new List<double>();
+                        dispersalProb = new List<double>();
             double max_dispersal_distance = max_dispersal_window();
             max_dispersal_distance_pixels = (int)(max_dispersal_distance / PlugIn.ModelCore.CellLength);
             dispersal_probability.Clear();
             cumulative_dispersal_probability.Clear();
             double total_p = 0;
             double cumulative_p = 0;
+            int index = 0;
             Dictionary<double, int> dispersal_prob_count = new Dictionary<double, int>(); ;
             for (int x = 0; x <= max_dispersal_distance_pixels; x++) // (int x = -all_species[s].max_dispersal_distance_pixels; x <= all_species[s].max_dispersal_distance_pixels; x++)
             {
@@ -391,12 +512,21 @@ namespace Landis.Extension.SpruceBudworm
                     r = Math.Sqrt(dx * dx + dy * dy);
                     p = dispersal_prob(x, y);                    
                     dir = Math.Asin(dy / r);
+                    if(r == 0)
+                    {
+                        dir = 0;
+                    }
                     if (x == 0 && y == 0)
                     {
                         cumulative_p += p;
                         total_p += p;
                         Triplet myTriplet = new Triplet(dir, r, cumulative_p);
                         cumulative_dispersal_probability.Add(myTriplet);
+                        dispersalIndex.Add(index);
+                        index++;
+                        dispersalDir.Add(dir);
+                        dispersalDist.Add(r);
+                        dispersalProb.Add(cumulative_p);
                     }
                     else if (x == y || x == 0 || y == 0)
                     {
@@ -407,6 +537,11 @@ namespace Landis.Extension.SpruceBudworm
                             double myDir = dir + i * (Math.PI / 2);
                             Triplet myTriplet = new Triplet(myDir, r, cumulative_p);
                             cumulative_dispersal_probability.Add(myTriplet);
+                            dispersalIndex.Add(index);
+                        index++;
+                        dispersalDir.Add(dir);
+                        dispersalDist.Add(r);
+                        dispersalProb.Add(cumulative_p);
                         }
                     }
                     else
@@ -418,6 +553,11 @@ namespace Landis.Extension.SpruceBudworm
                             double myDir = dir + i * (Math.PI / 4);
                             Triplet myTriplet = new Triplet(myDir, r, cumulative_p);
                             cumulative_dispersal_probability.Add(myTriplet);
+                            dispersalIndex.Add(index);
+                        index++;
+                        dispersalDir.Add(dir);
+                        dispersalDist.Add(r);
+                        dispersalProb.Add(cumulative_p);
                         }
                     }
                     if (dispersal_probability.ContainsKey(r))
@@ -442,6 +582,10 @@ namespace Landis.Extension.SpruceBudworm
                      * */
                 }
             }
+
+            indexArray = dispersalIndex.ToArray();
+            dispersalProb[dispersalProb.Count() - 1] = 1;
+            probArray = dispersalProb.ToArray();
 
             double cumulative_prob = 0;
             foreach (double r in dispersal_prob_count.Keys)

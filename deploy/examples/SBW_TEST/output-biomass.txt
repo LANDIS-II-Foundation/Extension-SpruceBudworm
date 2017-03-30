@@ -1,0 +1,11 @@
+LandisData  "Biomass Output"
+
+Timestep  1
+
+MakeTable yes  << Optional parameter
+
+Species    abiebals
+	   piceglau
+	   poputrem
+
+MapNames  output/biomass/{species}-{timestep}.img

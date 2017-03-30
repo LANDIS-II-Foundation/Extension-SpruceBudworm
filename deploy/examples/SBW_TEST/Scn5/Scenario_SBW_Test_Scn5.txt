@@ -1,23 +1,23 @@
 LandisData  Scenario
 
-Duration                          200        <<years
+Duration                          1000        <<years
 
-Species                           "..\species_092909.txt"
+Species                           "..\species_082416.txt"
 
 Ecoregions                        "..\ecoregions_single.txt"
 
-EcoregionsMap                     "..\images\E_eco_all2.IMG"
+EcoregionsMap                     "..\E_eco_all2.IMG"
 
 CellLength                        100 <<meters, so cell area = 1 ha
 
 >> Succession Extension     	Initialization File
 >>     --------------------             -------------------
-   "Biomass Succession vSBW"      	"..\biomass-succession-single-BF30.txt"
+   "Biomass Succession vSBW"      	"..\biomass-succession-single-WS30.txt"
 
 
 >> Disturbance Extensions   Initialization File
 >> ----------------------              -------------------
-"Spruce Budworm"			"..\SBW_input_Scn57.txt"  
+"Spruce Budworm"			"..\SBW_input_Scn5.txt"  
          
 
 
@@ -28,7 +28,7 @@ CellLength                        100 <<meters, so cell area = 1 ha
 >> -----------------                   -------------------
 >>   "Output Max Species Age"                 "..\max-spp-age.output.txt"
 >>   "Output Age Reclass"	             "..\reclass.outputBWCA_1008.txt"
->>   "Biomass Output"	   	 "..\output-biomass.txt"
+>>   "Output Biomass vSBW"	   	 "..\output-biomass.txt"
 >>   "Output Cohort Statistics"    "..\cohort-stats.output.txt"
 
 

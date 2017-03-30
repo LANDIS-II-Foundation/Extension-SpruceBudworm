@@ -1,0 +1,33 @@
+LandisData  "Base Harvest"
+
+
+Timestep    10
+
+ManagementAreas "../E_init_all1.img"
+
+Stands      "../E_init_all1.img"
+
+>> -----------------------------------------
+>> PRESCRIPTIONS
+
+Prescription MaxAgeClearcut
+    StandRanking 	MaxCohortAge
+    SiteSelection 	Complete
+    CohortsRemoved 	ClearCut
+    Plant piceglau
+
+
+>>-----------------------------------------------------------------
+>> PRESCRIPTION IMPLEMENTATION 
+
+    HarvestImplementations
+>>  Mgmt Area   Prescription    Harvest Area    Begin Time  End Time
+>>  ---------   ------------    ------------    ----------  --------
+	1	MaxAgeClearcut	100%	    	500		505
+	
+>>-----------------------------------------------------------------
+>> OUTPUTS
+
+PrescriptionMaps    harvest/prescripts-{timestep}.img
+EventLog            harvest/events-log.csv
+SummaryLog	    harvest/summary-log.csv

@@ -1,0 +1,11 @@
+LandisData  "Initial Communities"
+
+>>
+MapCode 0
+
+>>000001
+MapCode 1
+>>abiebals  30
+piceglau  30
+poputrem  30
+

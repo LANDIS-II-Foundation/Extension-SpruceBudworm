@@ -1,0 +1,9 @@
+LandisData  "Initial Communities"
+
+>>
+MapCode 0
+
+>>000001
+MapCode 1
+piceglau  30
+

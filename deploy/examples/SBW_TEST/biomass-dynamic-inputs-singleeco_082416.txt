@@ -1,0 +1,11 @@
+LandisData  "Dynamic Input Data"
+>> Year Ecoregion Species ProbEst MaxANPP MaxB
+>> -----------------------------------------
+>>0	eco1	abiebals	0.004	391	24926 << FR1
+>>0	eco1	pinubank	0.014	408	23500 << FR1
+>>0	eco1	poputrem	0.007	330	23900 << FR1
+>>0	eco1	piceglau	0.011	379	24056 << FR1
+0	eco1	abiebals	0.039	606	24926 << FRWET
+0	eco1	pinubank	0.048	666	23500 << FRWET
+0	eco1	poputrem	0.042	594	23900 << FRWET
+0	eco1	piceglau	0.044	625	24056 << FRWET

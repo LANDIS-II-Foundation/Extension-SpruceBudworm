@@ -1,0 +1,750 @@
+LandisData   "Initial Communities"
+
+MapCode  0
+
+MapCode  1
+piceglau  1
+
+MapCode  2
+piceglau  2
+
+MapCode  3
+piceglau  3
+
+MapCode  4
+piceglau  4
+
+MapCode  5
+piceglau  5
+
+MapCode  6
+piceglau  6
+
+MapCode  7
+piceglau  7
+
+MapCode  8
+piceglau  8
+
+MapCode  9
+piceglau  9
+
+MapCode  10
+piceglau  10
+
+MapCode  11
+piceglau  11
+
+MapCode  12
+piceglau  12
+
+MapCode  13
+piceglau  13
+
+MapCode  14
+piceglau  14
+
+MapCode  15
+piceglau  15
+
+MapCode  16
+piceglau  16
+
+MapCode  17
+piceglau  17
+
+MapCode  18
+piceglau  18
+
+MapCode  19
+piceglau  19
+
+MapCode  20
+piceglau  20
+
+MapCode  21
+piceglau  21
+
+MapCode  22
+piceglau  22
+
+MapCode  23
+piceglau  23
+
+MapCode  24
+piceglau  24
+
+MapCode  25
+piceglau  25
+
+MapCode  26
+piceglau  26
+
+MapCode  27
+piceglau  27
+
+MapCode  28
+piceglau  28
+
+MapCode  29
+piceglau  29
+
+MapCode  30
+piceglau  30
+
+MapCode  31
+piceglau  31
+
+MapCode  32
+piceglau  32
+
+MapCode  33
+piceglau  33
+
+MapCode  34
+piceglau  34
+
+MapCode  35
+piceglau  35
+
+MapCode  36
+piceglau  36
+
+MapCode  37
+piceglau  37
+
+MapCode  38
+piceglau  38
+
+MapCode  39
+piceglau  39
+
+MapCode  40
+piceglau  40
+
+MapCode  41
+piceglau  41
+
+MapCode  42
+piceglau  42
+
+MapCode  43
+piceglau  43
+
+MapCode  44
+piceglau  44
+
+MapCode  45
+piceglau  45
+
+MapCode  46
+piceglau  46
+
+MapCode  47
+piceglau  47
+
+MapCode  48
+piceglau  48
+
+MapCode  49
+piceglau  49
+
+MapCode  50
+piceglau  50
+
+MapCode  51
+piceglau  51
+
+MapCode  52
+piceglau  52
+
+MapCode  53
+piceglau  53
+
+MapCode  54
+piceglau  54
+
+MapCode  55
+piceglau  55
+
+MapCode  56
+piceglau  56
+
+MapCode  57
+piceglau  57
+
+MapCode  58
+piceglau  58
+
+MapCode  59
+piceglau  59
+
+MapCode  60
+piceglau  60
+
+MapCode  61
+piceglau  61
+
+MapCode  62
+piceglau  62
+
+MapCode  63
+piceglau  63
+
+MapCode  64
+piceglau  64
+
+MapCode  65
+piceglau  65
+
+MapCode  66
+piceglau  66
+
+MapCode  67
+piceglau  67
+
+MapCode  68
+piceglau  68
+
+MapCode  69
+piceglau  69
+
+MapCode  70
+piceglau  70
+
+MapCode  71
+piceglau  71
+
+MapCode  72
+piceglau  72
+
+MapCode  73
+piceglau  73
+
+MapCode  74
+piceglau  74
+
+MapCode  75
+piceglau  75
+
+MapCode  76
+piceglau  76
+
+MapCode  77
+piceglau  77
+
+MapCode  78
+piceglau  78
+
+MapCode  79
+piceglau  79
+
+MapCode  80
+piceglau  80
+
+MapCode  81
+piceglau  81
+
+MapCode  82
+piceglau  82
+
+MapCode  83
+piceglau  83
+
+MapCode  84
+piceglau  84
+
+MapCode  85
+piceglau  85
+
+MapCode  86
+piceglau  86
+
+MapCode  87
+piceglau  87
+
+MapCode  88
+piceglau  88
+
+MapCode  89
+piceglau  89
+
+MapCode  90
+piceglau  90
+
+MapCode  91
+piceglau  91
+
+MapCode  92
+piceglau  92
+
+MapCode  93
+piceglau  93
+
+MapCode  94
+piceglau  94
+
+MapCode  95
+piceglau  95
+
+MapCode  96
+piceglau  96
+
+MapCode  97
+piceglau  97
+
+MapCode  98
+piceglau  98
+
+MapCode  99
+piceglau  99
+
+MapCode  100
+piceglau  100
+
+MapCode  101
+piceglau  101
+
+MapCode  102
+piceglau  102
+
+MapCode  103
+piceglau  103
+
+MapCode  104
+piceglau  104
+
+MapCode  105
+piceglau  105
+
+MapCode  106
+piceglau  106
+
+MapCode  107
+piceglau  107
+
+MapCode  108
+piceglau  108
+
+MapCode  109
+piceglau  109
+
+MapCode  110
+piceglau  110
+
+MapCode  111
+piceglau  111
+
+MapCode  112
+piceglau  112
+
+MapCode  113
+piceglau  113
+
+MapCode  114
+piceglau  114
+
+MapCode  115
+piceglau  115
+
+MapCode  116
+piceglau  116
+
+MapCode  117
+piceglau  117
+
+MapCode  118
+piceglau  118
+
+MapCode  119
+piceglau  119
+
+MapCode  120
+piceglau  120
+
+MapCode  121
+piceglau  121
+
+MapCode  122
+piceglau  122
+
+MapCode  123
+piceglau  123
+
+MapCode  124
+piceglau  124
+
+MapCode  125
+piceglau  125
+
+MapCode  126
+piceglau  126
+
+MapCode  127
+piceglau  127
+
+MapCode  128
+piceglau  128
+
+MapCode  129
+piceglau  129
+
+MapCode  130
+piceglau  130
+
+MapCode  131
+piceglau  131
+
+MapCode  132
+piceglau  132
+
+MapCode  133
+piceglau  133
+
+MapCode  134
+piceglau  134
+
+MapCode  135
+piceglau  135
+
+MapCode  136
+piceglau  136
+
+MapCode  137
+piceglau  137
+
+MapCode  138
+piceglau  138
+
+MapCode  139
+piceglau  139
+
+MapCode  140
+piceglau  140
+
+MapCode  141
+piceglau  141
+
+MapCode  142
+piceglau  142
+
+MapCode  143
+piceglau  143
+
+MapCode  144
+piceglau  144
+
+MapCode  145
+piceglau  145
+
+MapCode  146
+piceglau  146
+
+MapCode  147
+piceglau  147
+
+MapCode  148
+piceglau  148
+
+MapCode  149
+piceglau  149
+
+MapCode  150
+piceglau  150
+
+MapCode  151
+piceglau  151
+
+MapCode  152
+piceglau  152
+
+MapCode  153
+piceglau  153
+
+MapCode  154
+piceglau  154
+
+MapCode  155
+piceglau  155
+
+MapCode  156
+piceglau  156
+
+MapCode  157
+piceglau  157
+
+MapCode  158
+piceglau  158
+
+MapCode  159
+piceglau  159
+
+MapCode  160
+piceglau  160
+
+MapCode  161
+piceglau  161
+
+MapCode  162
+piceglau  162
+
+MapCode  163
+piceglau  163
+
+MapCode  164
+piceglau  164
+
+MapCode  165
+piceglau  165
+
+MapCode  166
+piceglau  166
+
+MapCode  167
+piceglau  167
+
+MapCode  168
+piceglau  168
+
+MapCode  169
+piceglau  169
+
+MapCode  170
+piceglau  170
+
+MapCode  171
+piceglau  171
+
+MapCode  172
+piceglau  172
+
+MapCode  173
+piceglau  173
+
+MapCode  174
+piceglau  174
+
+MapCode  175
+piceglau  175
+
+MapCode  176
+piceglau  176
+
+MapCode  177
+piceglau  177
+
+MapCode  178
+piceglau  178
+
+MapCode  179
+piceglau  179
+
+MapCode  180
+piceglau  180
+
+MapCode  181
+piceglau  181
+
+MapCode  182
+piceglau  182
+
+MapCode  183
+piceglau  183
+
+MapCode  184
+piceglau  184
+
+MapCode  185
+piceglau  185
+
+MapCode  186
+piceglau  186
+
+MapCode  187
+piceglau  187
+
+MapCode  188
+piceglau  188
+
+MapCode  189
+piceglau  189
+
+MapCode  190
+piceglau  190
+
+MapCode  191
+piceglau  191
+
+MapCode  192
+piceglau  192
+
+MapCode  193
+piceglau  193
+
+MapCode  194
+piceglau  194
+
+MapCode  195
+piceglau  195
+
+MapCode  196
+piceglau  196
+
+MapCode  197
+piceglau  197
+
+MapCode  198
+piceglau  198
+
+MapCode  199
+piceglau  199
+
+MapCode  200
+piceglau  200
+
+MapCode  201
+piceglau  201
+
+MapCode  202
+piceglau  202
+
+MapCode  203
+piceglau  203
+
+MapCode  204
+piceglau  204
+
+MapCode  205
+piceglau  205
+
+MapCode  206
+piceglau  206
+
+MapCode  207
+piceglau  207
+
+MapCode  208
+piceglau  208
+
+MapCode  209
+piceglau  209
+
+MapCode  210
+piceglau  210
+
+MapCode  211
+piceglau  211
+
+MapCode  212
+piceglau  212
+
+MapCode  213
+piceglau  213
+
+MapCode  214
+piceglau  214
+
+MapCode  215
+piceglau  215
+
+MapCode  216
+piceglau  216
+
+MapCode  217
+piceglau  217
+
+MapCode  218
+piceglau  218
+
+MapCode  219
+piceglau  219
+
+MapCode  220
+piceglau  220
+
+MapCode  221
+piceglau  221
+
+MapCode  222
+piceglau  222
+
+MapCode  223
+piceglau  223
+
+MapCode  224
+piceglau  224
+
+MapCode  225
+piceglau  225
+
+MapCode  226
+piceglau  226
+
+MapCode  227
+piceglau  227
+
+MapCode  228
+piceglau  228
+
+MapCode  229
+piceglau  229
+
+MapCode  230
+piceglau  230
+
+MapCode  231
+piceglau  231
+
+MapCode  232
+piceglau  232
+
+MapCode  233
+piceglau  233
+
+MapCode  234
+piceglau  234
+
+MapCode  235
+piceglau  235
+
+MapCode  236
+piceglau  236
+
+MapCode  237
+piceglau  237
+
+MapCode  238
+piceglau  238
+
+MapCode  239
+piceglau  239
+
+MapCode  240
+piceglau  240
+
+MapCode  241
+piceglau  241
+
+MapCode  242
+piceglau  242
+
+MapCode  243
+piceglau  243
+
+MapCode  244
+piceglau  244
+
+MapCode  245
+piceglau  245
+
+MapCode  246
+piceglau  246
+
+MapCode  247
+piceglau  247
+
+MapCode  248
+piceglau  248
+
+MapCode  249
+piceglau  249
