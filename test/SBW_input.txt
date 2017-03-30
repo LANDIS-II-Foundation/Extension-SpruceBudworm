@@ -11,7 +11,7 @@ PopulationParameters
 ScalingParameters
 << m	n	
 1.0	1.0	<< Predatory parasites
-1.0	1.0	<< SBW prey
+1.67	1.0	<< SBW prey
 
 InitialBudwormDensityMap  single_020.img
 InitialEnemyDensityMap  single_020.img
@@ -19,7 +19,7 @@ InitialEnemyDensityMap  single_020.img
 
 OverwinterRandom
 <<mean	stdev
-  1	0.1
+  1	0
 
 FecundityRandom
 <<mean  stdev
@@ -45,7 +45,11 @@ Mortality  Y
 DefoliationLambda  0.255
 
 SDDRadius	1000
+
 SDDEdgeEffect	Biased
+eco0	Reflect
+eco1	Absorb
+
 
 Emigration
 <<MinLDD  HalfLDD  MaxLDD  MaxLDDProp
@@ -53,18 +57,27 @@ Emigration
 
 LDDDispersalKernel
 << mean1  mean2  weight1
-   15000  20000  0.7
+   7500  10000  1.0
 
 WrapLDD Y
+
+LDDSpeedUp	Y
 
 PositiveFecundityDispersal  N
 
 MinSusceptibleAge  20
 
-L2FilterRadius  0
-BudwormEdgeEffect  Same
-EnemyFilterRadius  0
-EnemyEdgeEffect  Biased
+L2FilterRadius  150
+
+L2EdgeEffect	Unbiased
+eco0	Absorb
+eco1	Absorb
+
+EnemyFilterRadius  150
+
+EnemyEdgeEffect	Biased
+eco0	Absorb
+eco1	Absorb
 
 MaxBudwormDensity  10
 
@@ -84,7 +97,7 @@ querrubr
 tiliamer
 
 
-PctDefolMapName  output\budworm\PctDefol-{timestep}.gis
+PctDefolMapName  output\budworm\PctDefol-{timestep}.img
 MortalityMapName output\budworm\Mortality-{timestep}.img
 HostFoliageMapName output\budworm\HostFol-{timestep}.img
 BudwormDensityMapName output\budworm\SBWDensity-{timestep}.img

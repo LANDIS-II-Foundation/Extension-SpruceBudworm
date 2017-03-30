@@ -56,7 +56,7 @@ namespace Landis.Extension.SpruceBudworm
         private bool positiveFecundDispersal;
         private int minSusceptibleAge;
         private double l2FilterRadius;
-        private string budwormEdgeEffect;
+        private string l2EdgeEffect;
         private double enemyFilterRadius;
         private string enemyEdgeEffect;
         private Landis.Library.Parameters.Species.AuxParm<bool> sbwHost;
@@ -71,6 +71,7 @@ namespace Landis.Extension.SpruceBudworm
         private double preyM = 1.0;
         private double preyN = 1.0;
         private double maxBudDensity;
+        private IEcoParameters[] ecoParameters;
 
 
 		/// <summary>
@@ -542,7 +543,8 @@ namespace Landis.Extension.SpruceBudworm
         /// Same:  Nonactive cells have same number as focal cell
         /// Absorbed:  Nonactive cells are sinks and provide nothing to other cells
         /// Reflected: Nonactive cells do not receive anything, all is dispersed among active cells
-        /// Biased:  Budworm counts dispersed in proprtion to total host foilage within neighborhood
+        /// Biased:  Budworm counts dispersed in proportion to total host foilage within neighborhood
+        /// AvgBiased:  Budworm counts dispersed in proportion to total host foilage within neighborhood, but nonactives assumed to have same eggs to disperse and same avg host foliage as rest of neighborhood
         /// </summary>
         public string SDDEdgeEffect
         {
@@ -743,15 +745,15 @@ namespace Landis.Extension.SpruceBudworm
         /// Absorbed:  Nonactive cells are sinks and provide nothing to other cells
         /// Reflected: Nonactive cells do not receive anything, all is dispersed among active cells
         /// </summary>
-        public string BudwormEdgeEffect
+        public string L2EdgeEffect
         {
             get
             {
-                return budwormEdgeEffect;
+                return l2EdgeEffect;
             }
             set
             {
-                budwormEdgeEffect = value;
+                l2EdgeEffect = value;
             }
         }
         //---------------------------------------------------------------------
@@ -776,6 +778,8 @@ namespace Landis.Extension.SpruceBudworm
         /// Same:  Nonactive cells have same number as focal cell
         /// Absorbed:  Nonactive cells are sinks and provide nothing to other cells
         /// Reflected: Nonactive cells do not receive anything, all is dispersed among active cells
+        /// Biased:  Enemies dispersed in proportion to total spruce budworm density within neighborhood
+        /// AvgBiased:  Enemies dispersed in proportion to total spruce budworm density within neighborhood, but nonactives assumed to have same enemies to disperse and same avg spruce budworm density as rest of neighborhood
         /// </summary>
         public string EnemyEdgeEffect
         {
@@ -1001,11 +1005,31 @@ namespace Landis.Extension.SpruceBudworm
 		}
 
         //---------------------------------------------------------------------
-
-        public InputParameters()
+        /// <summary>
+        /// Ecoregion edge effects
+        /// </summary>
+        /// 		/// <remarks>
+        /// Use Ecoregion.Index property to index this array.
+        /// </remarks>
+        public IEcoParameters[] EcoParameters
+        {
+            get
+            {
+                return ecoParameters;
+            }
+            set
+            {
+                ecoParameters = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        public InputParameters(int ecoregionCount)
         {
             sbwHost = new Library.Parameters.Species.AuxParm<bool>(PlugIn.ModelCore.Species);
             deciduous = new Library.Parameters.Species.AuxParm<bool>(PlugIn.ModelCore.Species);
+            EcoParameters = new IEcoParameters[ecoregionCount];
+            for (int i = 0; i < ecoregionCount; i++)
+                EcoParameters[i] = new EcoParameters();
         }
 
 	}

@@ -155,7 +155,7 @@ namespace Landis.Extension.SpruceBudworm
         { get; set; }
         double L2FilterRadius
         { get; set; }
-        string BudwormEdgeEffect
+        string L2EdgeEffect
         { get; set; }
         double EnemyFilterRadius
         { get; set; }
@@ -221,5 +221,15 @@ namespace Landis.Extension.SpruceBudworm
 		{
 			get;set;
 		}
+        /// <summary>
+        /// <summary>
+        /// Ecoregion edge effects
+        /// </summary>
+        IEcoParameters[] EcoParameters
+        {
+            get;
+            set;
+        }
+        //---------------------------------------------------------------------
 	}
 }

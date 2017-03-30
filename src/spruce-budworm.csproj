@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BytePixel.cs" />
+    <Compile Include="EcoParameters.cs" />
     <Compile Include="FloatPixel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
