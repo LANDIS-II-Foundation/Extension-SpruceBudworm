@@ -13,8 +13,8 @@ ScalingParameters
 1.0	1.0	<< Predatory parasites
 1.67	1.0	<< SBW prey
 
-InitialBudwormDensityMap  single_020.img
-InitialEnemyDensityMap  single_020.img
+InitialBudwormDensityMap  "../W_startdens_020.img"
+InitialEnemyDensityMap  "../W_startdens_020.img"
 
 
 OverwinterRandom
@@ -47,9 +47,8 @@ DefoliationLambda  0.255
 SDDRadius	1000
 
 SDDEdgeEffect	Biased
-eco0	Reflect
+water	Reflect
 eco1	Absorb
-
 
 Emigration
 <<MinLDD  HalfLDD  MaxLDD  MaxLDDProp
@@ -60,8 +59,7 @@ LDDDispersalKernel
    5000  10000  1.0
 
 
-
-WrapLDD Y
+WrapLDD  Y
 
 LDDSpeedUp	Y
 
@@ -72,13 +70,13 @@ MinSusceptibleAge  20
 L2FilterRadius  150
 
 L2EdgeEffect	Unbiased
-eco0	Absorb
+water	Absorb
 eco1	Absorb
 
 EnemyFilterRadius  150
 
 EnemyEdgeEffect	Biased
-eco0	Absorb
+water	Absorb
 eco1	Absorb
 
 MaxBudwormDensity  10
@@ -91,12 +89,9 @@ piceglau
 DeciduousSpeciesList
 poputrem
 acerrubr
-acersacc
 betupapy
-fraxamer
+fraxnigr
 querelli
-querrubr
-tiliamer
 
 
 PctDefolMapName  output\budworm\PctDefol-{timestep}.img

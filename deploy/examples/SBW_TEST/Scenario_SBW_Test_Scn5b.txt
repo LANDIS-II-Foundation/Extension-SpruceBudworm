@@ -17,7 +17,7 @@ CellLength                        100 <<meters, so cell area = 1 ha
 
 >> Disturbance Extensions   Initialization File
 >> ----------------------              -------------------
-"Spruce Budworm"			"..\SBW_input_Scn5.txt"  
+"Spruce Budworm"			"..\SBW_input_Scn5b.txt"  
          
 
 

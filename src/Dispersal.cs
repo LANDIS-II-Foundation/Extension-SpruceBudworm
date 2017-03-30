@@ -321,10 +321,8 @@ namespace Landis.Extension.SpruceBudworm
                                     }
                                     else
                                     {
-                s1.Stop();
-                Console.WriteLine("Time to search " + randList.Count() + " probability:" + ((double)(s1.Elapsed.TotalSeconds)).ToString("0.0000 s"));
-                Console.WriteLine();
-                                        if(cum_prob_benchmarks_tail2.ContainsKey(randValRoundTail2))
+                                        
+                                        if (cum_prob_benchmarks_tail2.ContainsKey(randValRoundTail2))
                                         {
                                             tempProbIndex = cum_prob_benchmarks_tail2[randValRoundTail2];
                                         }
@@ -383,7 +381,9 @@ namespace Landis.Extension.SpruceBudworm
                         }
                     }
                 }
-
+                s1.Stop();
+                Console.WriteLine("Time to search " + randList.Count() + " probability:" + ((double)(s1.Elapsed.TotalSeconds)).ToString("0.0000 s"));
+                Console.WriteLine();
 
                 /*foreach (Triplet myTriplet in cumulative_dispersal_probability)
                 {
