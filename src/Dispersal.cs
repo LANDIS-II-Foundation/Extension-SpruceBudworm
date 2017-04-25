@@ -152,7 +152,7 @@ namespace Landis.Extension.SpruceBudworm
 
         public static void DisperseLDDBinarySearch(Site site, bool wrapLDD)
         {
-            var s1 = Stopwatch.StartNew();
+            //var s1 = Stopwatch.StartNew();
             int disperseCount = (int)Math.Round(SiteVars.LDDout[site]);
 
             List<Pair> disperseList = new List<Pair>();
@@ -186,9 +186,9 @@ namespace Landis.Extension.SpruceBudworm
                 disperseList.Add(locationPair);
             }
 
-            s1.Stop();
-            Console.WriteLine("Time to search " + randList.Count() + " probability:" + ((double)(s1.Elapsed.TotalSeconds)).ToString("0.0000 s"));
-            Console.WriteLine();
+            //s1.Stop();
+            //Console.WriteLine("Time to search " + randList.Count() + " probability:" + ((double)(s1.Elapsed.TotalSeconds)).ToString("0.0000 s"));
+            //Console.WriteLine();
            
 
             foreach (Pair locationPair in disperseList)
@@ -257,7 +257,7 @@ namespace Landis.Extension.SpruceBudworm
 
         public static void DisperseLDDSpeedUp(Site site, bool wrapLDD)
         {
-            var s1 = Stopwatch.StartNew();
+            //var s1 = Stopwatch.StartNew();
             int disperseCount = (int)Math.Round(SiteVars.LDDout[site]);
             if (disperseCount > 0)
             {
@@ -381,9 +381,9 @@ namespace Landis.Extension.SpruceBudworm
                         }
                     }
                 }
-                s1.Stop();
-                Console.WriteLine("Time to search " + randList.Count() + " probability:" + ((double)(s1.Elapsed.TotalSeconds)).ToString("0.0000 s"));
-                Console.WriteLine();
+                //s1.Stop();
+                //Console.WriteLine("Time to search " + randList.Count() + " probability:" + ((double)(s1.Elapsed.TotalSeconds)).ToString("0.0000 s"));
+                //Console.WriteLine();
 
                 /*foreach (Triplet myTriplet in cumulative_dispersal_probability)
                 {
@@ -677,7 +677,7 @@ namespace Landis.Extension.SpruceBudworm
             dispersalProb[dispersalProb.Count() - 1] = 1;
             probArray = dispersalProb.ToArray();
 
-            double cumulative_prob = 0;
+            //double cumulative_prob = 0;
             foreach (double r in dispersal_prob_count.Keys)
             {
                 dispersal_probability[r] = dispersal_probability[r] / dispersal_prob_count[r];
