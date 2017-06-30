@@ -743,7 +743,7 @@ namespace Landis.Extension.SpruceBudworm
             double sumDispersed = 0;
             foreach (Site disperseSite in siteList)
             {
-                if (edgeEffect.Equals("Biased", StringComparison.OrdinalIgnoreCase))
+                if ((sumDensity > 0) && (edgeEffect.Equals("Biased", StringComparison.OrdinalIgnoreCase)))
                 {
                     double biasIndex = SiteVars.TotalHostFoliage[disperseSite] / sumDensity;
                     dispersedCount = SiteVars.SDDout[site] * biasIndex;
