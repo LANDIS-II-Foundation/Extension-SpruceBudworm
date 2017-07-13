@@ -174,7 +174,7 @@ namespace Landis.Extension.SpruceBudworm
             for (int i = 0; i < randList.Count(); i++)
             {
                 double randVal = randList[i];
-                int pos = ~(Array.BinarySearch(probArray, randVal));
+                int pos = Math.Abs(~(Array.BinarySearch(probArray, randVal)));
 
                 //take lower bound
                 //if (pos == 0)
@@ -674,8 +674,10 @@ namespace Landis.Extension.SpruceBudworm
             }
 
             indexArray = dispersalIndex.ToArray();
-            dispersalProb[dispersalProb.Count() - 1] = 1;
-            probArray = dispersalProb.ToArray();
+            double dispersalProbMax = dispersalProb.Max();
+            List<double> dispersalProbAdj = dispersalProb.Select(r => r / dispersalProbMax).ToList();
+            dispersalProbAdj[dispersalProbAdj.Count() - 1] = 1;
+            probArray = dispersalProbAdj.ToArray();
 
             //double cumulative_prob = 0;
             foreach (double r in dispersal_prob_count.Keys)

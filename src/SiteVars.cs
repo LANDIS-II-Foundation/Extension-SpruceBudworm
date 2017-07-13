@@ -473,7 +473,7 @@ namespace Landis.Extension.SpruceBudworm
                 // calculate enemy density (9)
                 double enemyDensitySpring = 0;
                 double budwormCountSpring = SiteVars.FilteredBudwormSpring[site];
-                if (budwormCountSpring > 0)
+                if (budwormCountSpring > 0.000001) // At very low budworm densities the enemies all die
                     enemyDensitySpring = SiteVars.FilteredEnemyCount[site] / budwormCountSpring;
                 //Apply scaling parameters (9)
                 double enemyDensitySpringScaled = Math.Pow((enemyDensitySpring / PlugIn.Parameters.PredM), (1.0 / PlugIn.Parameters.PredN));
