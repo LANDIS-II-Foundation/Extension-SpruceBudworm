@@ -396,7 +396,7 @@ namespace Landis.Extension.SpruceBudworm
             
             double sumCountSpring = 0;
             double sumCountFiltered= 0;
-            double sumEnemyFiltered = 0;
+            //double sumEnemyFiltered = 0;
             foreach (Site site in PlugIn.ModelCore.Landscape.ActiveSites)
             {
                 if ((PlugIn.ModelCore.CurrentTime > 10) && (site.Location.Row == 11) && (site.Location.Column == 54))
@@ -445,8 +445,8 @@ namespace Landis.Extension.SpruceBudworm
             {
                 // spatial average filter spring enemy counts
                 // Spatial filter in neighborhood
-                double filteredEnemySpring = LocalDispersalEnemies(site, PlugIn.Parameters.EnemyFilterRadius, PlugIn.Parameters.EnemyEdgeEffect,PlugIn.Parameters.EcoParameters);
-                sumEnemyFiltered += filteredEnemySpring;
+                double filteredEnemySpring = LocalDispersalEnemies(site, PlugIn.Parameters.EnemyFilterRadius, PlugIn.Parameters.EnemyEdgeEffect,PlugIn.Parameters.EcoParameters,PlugIn.Parameters.EnemyDispersalProp);
+                //sumEnemyFiltered += filteredEnemySpring;
             }
 
             foreach (Site site in PlugIn.ModelCore.Landscape.ActiveSites)
@@ -473,8 +473,11 @@ namespace Landis.Extension.SpruceBudworm
                 // calculate enemy density (9)
                 double enemyDensitySpring = 0;
                 double budwormCountSpring = SiteVars.FilteredBudwormSpring[site];
-                if (budwormCountSpring > 0.000001) // At very low budworm densities the enemies all die
+                double minDensity = 10e-250;
+                if (budwormCountSpring > minDensity) // At very low budworm densities the budworm and enemies go to 0
                     enemyDensitySpring = SiteVars.FilteredEnemyCount[site] / budwormCountSpring;
+                else
+                    budwormCountSpring = 0;
                 //Apply scaling parameters (9)
                 double enemyDensitySpringScaled = Math.Pow((enemyDensitySpring / PlugIn.Parameters.PredM), (1.0 / PlugIn.Parameters.PredN));
                 SiteVars.EnemyDensity[site] = enemyDensitySpring;
@@ -680,7 +683,7 @@ namespace Landis.Extension.SpruceBudworm
         }
         //---------------------------------------------------------------------
         // This disperses local count among self and neighbors
-        public static double LocalDispersalEnemies(Site site, double enemyFilterRadius, string edgeEffect, IEcoParameters[] ecoParameters)
+        public static double LocalDispersalEnemies(Site site, double enemyFilterRadius, string edgeEffect, IEcoParameters[] ecoParameters,double enemyDispersalProp)
         {
             List<Site> siteList = new List<Site>();
             int maxCells = 0;
@@ -689,9 +692,11 @@ namespace Landis.Extension.SpruceBudworm
             int siteCount = siteList.Count;
             double avgDensity = sumDensity / siteCount;
             double adjSumDensity = sumDensity + (avgDensity * (maxCells - siteCount));
+            double enemiesToDisperse = SiteVars.EnemyCount[site] * enemyDispersalProp;
+            double enemiesToStayLocal = SiteVars.EnemyCount[site] - enemiesToDisperse;
             double dispersedCount = 0;
             // Calculate number to disperse to each site in neighborhood           
-            dispersedCount = SiteVars.EnemyCount[site] / maxCells; // For Unbiased
+            dispersedCount = enemiesToDisperse / maxCells; // For Unbiased
 
             // Disperse to all neighbor sites
             double sumDispersed = 0;
@@ -700,11 +705,13 @@ namespace Landis.Extension.SpruceBudworm
                 if (edgeEffect.Equals("Biased", StringComparison.OrdinalIgnoreCase))
                 {
                     double biasIndex = SiteVars.FilteredBudwormSpring[disperseSite] / sumDensity;
-                    dispersedCount = SiteVars.EnemyCount[site] * biasIndex;
+                    dispersedCount = enemiesToDisperse * biasIndex;
                 }
                 SiteVars.FilteredEnemyCount[disperseSite] += dispersedCount;
                 sumDispersed += dispersedCount;
             }
+            SiteVars.FilteredEnemyCount[site] += enemiesToStayLocal;
+            sumDispersed += enemiesToStayLocal;
             // With wrapping we do not need to assum inputs from non-active cells
             //// Add assumed input from non-active neigbors if EdgeEffect == Same or AvgBiased
             //if (edgeEffect.Equals("Same", StringComparison.OrdinalIgnoreCase))

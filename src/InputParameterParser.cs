@@ -358,6 +358,16 @@ namespace Landis.Extension.SpruceBudworm
             ReadVar(enemyFilterRadius);
             parameters.EnemyFilterRadius = enemyFilterRadius.Value;
 
+            // Read Enemy DispersalProp
+            InputVar<double> enemyDispersalProp = new InputVar<double>("EnemyDispersalProp");
+            if(ReadOptionalVar(enemyDispersalProp))
+            {
+                parameters.EnemyDispersalProp = enemyDispersalProp.Value;
+            }
+            else
+            {
+                parameters.EnemyDispersalProp = 1.0;
+            }
             // Read EnemyEdge Effect parameter
             InputVar<string> enemyEdgeEffect = new InputVar<string>("EnemyEdgeEffect");
             ReadVar(enemyEdgeEffect);

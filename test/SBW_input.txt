@@ -44,39 +44,35 @@ Mortality  Y
 
 DefoliationLambda  0.255
 
+<< SDD >>
 SDDRadius	1000
-
 SDDEdgeEffect	Biased
 eco0	Reflect
 eco1	Absorb
 
-
+<< LDD >>
 Emigration
 <<MinLDD  HalfLDD  MaxLDD  MaxLDDProp
 0.25     0.5      0.80     0.80      << Values of 1.0  1.1  1.1  1.1 results in no emigration
-
 LDDDispersalKernel
 << mean1  mean2  weight1
    5000  10000  1.0
-
-
-
 WrapLDD Y
-
 LDDSpeedUp	Y
 
 PositiveFecundityDispersal  N
 
 MinSusceptibleAge  20
 
+<< L2 Dispersal >>
 L2FilterRadius  150
-
 L2EdgeEffect	Unbiased
 eco0	Absorb
 eco1	Absorb
 
+<< Natural Enemy Dipsersal >>
 EnemyFilterRadius  150
-
+EnemyDispersalProp  0.5
 EnemyEdgeEffect	Biased
 eco0	Absorb
 eco1	Absorb

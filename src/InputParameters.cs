@@ -58,6 +58,7 @@ namespace Landis.Extension.SpruceBudworm
         private double l2FilterRadius;
         private string l2EdgeEffect;
         private double enemyFilterRadius;
+        private double enemyDispersalProp;
         private string enemyEdgeEffect;
         private Landis.Library.Parameters.Species.AuxParm<bool> sbwHost;
         private Landis.Library.Parameters.Species.AuxParm<bool> deciduous;
@@ -769,6 +770,21 @@ namespace Landis.Extension.SpruceBudworm
             set
             {
                 enemyFilterRadius = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Proportion of natural enemies that disperse
+        /// </summary>
+        public double EnemyDispersalProp
+        {
+            get
+            {
+                return enemyDispersalProp;
+            }
+            set
+            {
+                enemyDispersalProp = value;
             }
         }
         //---------------------------------------------------------------------

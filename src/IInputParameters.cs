@@ -159,6 +159,8 @@ namespace Landis.Extension.SpruceBudworm
         { get; set; }
         double EnemyFilterRadius
         { get; set; }
+        double EnemyDispersalProp
+        { get; set; }
         string EnemyEdgeEffect
         { get; set; }
         Landis.Library.Parameters.Species.AuxParm<bool> SBWHost
