@@ -163,6 +163,8 @@ namespace Landis.Extension.SpruceBudworm
         { get; set; }
         string EnemyEdgeEffect
         { get; set; }
+        double EnemyBiasedProp
+        { get; set; }
         Landis.Library.Parameters.Species.AuxParm<bool> SBWHost
         { get; set; }
         Landis.Library.Parameters.Species.AuxParm<bool> Deciduous

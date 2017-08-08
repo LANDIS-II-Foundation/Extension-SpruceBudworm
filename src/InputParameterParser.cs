@@ -368,10 +368,18 @@ namespace Landis.Extension.SpruceBudworm
             {
                 parameters.EnemyDispersalProp = 1.0;
             }
+
+            
             // Read EnemyEdge Effect parameter
+            InputVar<double> enemyBiasedProp = new InputVar<double>("EnemyBiasedProp");
+            ReadVar(enemyBiasedProp);
+            parameters.EnemyBiasedProp = enemyBiasedProp.Value;
+            if (parameters.EnemyBiasedProp > 0)
+                parameters.EnemyEdgeEffect = "Biased";
+            else
+                parameters.EnemyEdgeEffect = "Unbiased";
             InputVar<string> enemyEdgeEffect = new InputVar<string>("EnemyEdgeEffect");
-            ReadVar(enemyEdgeEffect);
-            parameters.EnemyEdgeEffect = enemyEdgeEffect.Value;
+         
 
             lineNumbers = new Dictionary<string, int>();
             ecoName = new InputVar<string>("L2Ecoregion");

@@ -60,6 +60,7 @@ namespace Landis.Extension.SpruceBudworm
         private double enemyFilterRadius;
         private double enemyDispersalProp;
         private string enemyEdgeEffect;
+        private double enemyBiasedProp;
         private Landis.Library.Parameters.Species.AuxParm<bool> sbwHost;
         private Landis.Library.Parameters.Species.AuxParm<bool> deciduous;
         private string pctDefolMapName;
@@ -806,6 +807,21 @@ namespace Landis.Extension.SpruceBudworm
             set
             {
                 enemyEdgeEffect = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Enemy proportion biased dispersal
+        /// </summary>
+        public double EnemyBiasedProp
+        {
+            get
+            {
+                return enemyBiasedProp;
+            }
+            set
+            {
+                enemyBiasedProp = value;
             }
         }
         //---------------------------------------------------------------------

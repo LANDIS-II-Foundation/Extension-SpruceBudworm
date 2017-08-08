@@ -445,7 +445,7 @@ namespace Landis.Extension.SpruceBudworm
             {
                 // spatial average filter spring enemy counts
                 // Spatial filter in neighborhood
-                double filteredEnemySpring = LocalDispersalEnemies(site, PlugIn.Parameters.EnemyFilterRadius, PlugIn.Parameters.EnemyEdgeEffect,PlugIn.Parameters.EcoParameters,PlugIn.Parameters.EnemyDispersalProp);
+                double filteredEnemySpring = LocalDispersalEnemies(site, PlugIn.Parameters.EnemyFilterRadius, PlugIn.Parameters.EnemyEdgeEffect,PlugIn.Parameters.EcoParameters,PlugIn.Parameters.EnemyDispersalProp,PlugIn.Parameters.EnemyBiasedProp);
                 //sumEnemyFiltered += filteredEnemySpring;
             }
 
@@ -683,7 +683,7 @@ namespace Landis.Extension.SpruceBudworm
         }
         //---------------------------------------------------------------------
         // This disperses local count among self and neighbors
-        public static double LocalDispersalEnemies(Site site, double enemyFilterRadius, string edgeEffect, IEcoParameters[] ecoParameters,double enemyDispersalProp)
+        public static double LocalDispersalEnemies(Site site, double enemyFilterRadius, string edgeEffect, IEcoParameters[] ecoParameters,double enemyDispersalProp, double enemyBiasedProp)
         {
             List<Site> siteList = new List<Site>();
             int maxCells = 0;
@@ -694,18 +694,21 @@ namespace Landis.Extension.SpruceBudworm
             double adjSumDensity = sumDensity + (avgDensity * (maxCells - siteCount));
             double enemiesToDisperse = SiteVars.EnemyCount[site] * enemyDispersalProp;
             double enemiesToStayLocal = SiteVars.EnemyCount[site] - enemiesToDisperse;
+            double enemiesBiasedDisperse = enemiesToDisperse * enemyBiasedProp;
+            double enemiesUnbiasedDisperse = enemiesToDisperse - enemiesBiasedDisperse;
             double dispersedCount = 0;
             // Calculate number to disperse to each site in neighborhood           
-            dispersedCount = enemiesToDisperse / maxCells; // For Unbiased
+            double unbiasedDisperseCount = enemiesUnbiasedDisperse / maxCells; // For Unbiased
 
             // Disperse to all neighbor sites
             double sumDispersed = 0;
             foreach (Site disperseSite in siteList)
             {
+                dispersedCount = unbiasedDisperseCount;
                 if (edgeEffect.Equals("Biased", StringComparison.OrdinalIgnoreCase))
                 {
                     double biasIndex = SiteVars.FilteredBudwormSpring[disperseSite] / sumDensity;
-                    dispersedCount = enemiesToDisperse * biasIndex;
+                    dispersedCount += enemiesBiasedDisperse * biasIndex;
                 }
                 SiteVars.FilteredEnemyCount[disperseSite] += dispersedCount;
                 sumDispersed += dispersedCount;
