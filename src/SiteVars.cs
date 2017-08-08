@@ -645,9 +645,10 @@ namespace Landis.Extension.SpruceBudworm
         public static double LocalDispersal(Site site, double l2FilterRadius, string edgeEffect, IEcoParameters[] ecoParameters)
         {
             List<Site> siteList = new List<Site>();
+            List<bool> leftMapList = new List<bool>();
             int maxCells = 0;
             double sumDensity = 0;
-            FindNeighborSites(out siteList, out maxCells, out sumDensity, site, l2FilterRadius, "l2", ecoParameters);
+            FindNeighborSites(out siteList, out leftMapList, out maxCells, out sumDensity, site, l2FilterRadius, "l2", ecoParameters);
             int siteCount = siteList.Count;
             double dispersedCount = 0;
             // Calculate number to disperse to each site in neighborhood
@@ -688,7 +689,8 @@ namespace Landis.Extension.SpruceBudworm
             List<Site> siteList = new List<Site>();
             int maxCells = 0;
             double sumDensity = 0;
-            FindNeighborSites(out siteList, out maxCells, out sumDensity, site, enemyFilterRadius, "enemies", ecoParameters);
+            List<bool> leftMapList = new List<bool>();
+            FindNeighborSites(out siteList, out leftMapList, out maxCells, out sumDensity, site, enemyFilterRadius, "enemies", ecoParameters);
             int siteCount = siteList.Count;
             double avgDensity = sumDensity / siteCount;
             double adjSumDensity = sumDensity + (avgDensity * (maxCells - siteCount));
@@ -702,16 +704,28 @@ namespace Landis.Extension.SpruceBudworm
 
             // Disperse to all neighbor sites
             double sumDispersed = 0;
+            int siteIndex = 0;
             foreach (Site disperseSite in siteList)
             {
                 dispersedCount = unbiasedDisperseCount;
+                bool leftMap = leftMapList[siteIndex];
                 if (edgeEffect.Equals("Biased", StringComparison.OrdinalIgnoreCase))
                 {
                     double biasIndex = SiteVars.FilteredBudwormSpring[disperseSite] / sumDensity;
                     dispersedCount += enemiesBiasedDisperse * biasIndex;
                 }
-                SiteVars.FilteredEnemyCount[disperseSite] += dispersedCount;
-                sumDispersed += dispersedCount;
+                if (leftMap)
+                {
+                    SiteVars.FilteredEnemyCount[disperseSite] += (dispersedCount * PlugIn.Parameters.EnemyEdgeWrapReduction);
+                    sumDispersed += (dispersedCount * PlugIn.Parameters.EnemyEdgeWrapReduction);
+                }
+                else
+                {
+                    SiteVars.FilteredEnemyCount[disperseSite] += dispersedCount;
+                    sumDispersed += dispersedCount;
+                }
+                
+                siteIndex++;
             }
             SiteVars.FilteredEnemyCount[site] += enemiesToStayLocal;
             sumDispersed += enemiesToStayLocal;
@@ -738,9 +752,10 @@ namespace Landis.Extension.SpruceBudworm
         public static double DisperseSDD(Site site, double sddRadius, string edgeEffect, IEcoParameters[] ecoParameters)
         {
             List<Site> siteList = new List<Site>();  //List of cells to disperse to (takes into account edge effects)
+            List<bool> leftMapList = new List<bool>();
             int maxCells = 0;  //Total cells in the neighborhood regardless of edge effects
             double sumDensity = 0;  //Sum of densities across sites (takes into account edge effects)
-            FindNeighborSites(out siteList, out maxCells, out sumDensity, site, sddRadius, "sdd", ecoParameters);
+            FindNeighborSites(out siteList, out leftMapList, out maxCells, out sumDensity, site, sddRadius, "sdd", ecoParameters);
             int siteCount = siteList.Count;  //Number if cells to disperse to
             double avgDensity = sumDensity / siteCount;  //Average density per cell
             double adjSumDensity = sumDensity + (avgDensity * (maxCells - siteCount));
@@ -985,7 +1000,7 @@ namespace Landis.Extension.SpruceBudworm
             sumDensity = tempSumDensity;
         }
         //Modified code - wrapping, with ecoregion edge effects
-        private static void FindNeighborSites(out List<Site> siteList, out int maxCells, out double sumDensity, Site site, double radius, string option, IEcoParameters[] ecoParameters)
+        private static void FindNeighborSites(out List<Site> siteList, out List<bool> leftMapList, out int maxCells, out double sumDensity, Site site, double radius, string option, IEcoParameters[] ecoParameters)
         {
             double CellLength = PlugIn.ModelCore.CellLength;
 
@@ -998,6 +1013,7 @@ namespace Landis.Extension.SpruceBudworm
 
             // Count the neighbor cells to disperse to (including source site)
             List<Site> tempSiteList = new List<Site>();
+            List<bool> tempLeftList = new List<bool>();
             int maxCellCount = 0;
             double tempSumDensity = 0;
             for (int row = (numCellRadius * -1); row <= numCellRadius; row++)
@@ -1014,8 +1030,15 @@ namespace Landis.Extension.SpruceBudworm
                         int target_x = site.Location.Column + j;
                         int target_y = site.Location.Row + k;
 
+                        bool leftMap = false;  //  Does dispersal leave the map (wrap)?
+
                         int landscapeRows = PlugIn.ModelCore.Landscape.Rows;
                         int landscapeCols = PlugIn.ModelCore.Landscape.Columns;
+
+                        if (target_x < 0 || target_y < 0 || target_x > landscapeCols || target_y > landscapeRows)
+                        {
+                            leftMap = true;  // Dispersal goes off the map and wraps
+                        }
 
                         //remainRow=SIGN(C4)*MOD(ABS(C4),$B$1)
                         int remainRow = Math.Sign(k) * (Math.Abs(k) % landscapeRows);
@@ -1090,6 +1113,7 @@ namespace Landis.Extension.SpruceBudworm
                             {
                                 maxCellCount++;
                                 tempSiteList.Add(neighbor);
+                                tempLeftList.Add(leftMap);
                             }
                             tempSumDensity += neighborDensity;
                         }
@@ -1098,6 +1122,7 @@ namespace Landis.Extension.SpruceBudworm
                             if (neighbor.IsActive)
                             {
                                 tempSiteList.Add(neighbor);
+                                tempLeftList.Add(leftMap);
                             }
                             maxCellCount++;
                             tempSumDensity += neighborDensity;
@@ -1114,6 +1139,7 @@ namespace Landis.Extension.SpruceBudworm
             siteList = tempSiteList;
             maxCells = maxCellCount;
             sumDensity = tempSumDensity;
+            leftMapList = tempLeftList;
             //return siteList;
         }
         //-------------------------------------------------------
