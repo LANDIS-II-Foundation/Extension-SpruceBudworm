@@ -59,6 +59,7 @@ LDDDispersalKernel
    5000  10000  1.0
 WrapLDD Y
 LDDSpeedUp	Y
+LDDEdgeWrapReduction  1.0
 
 PositiveFecundityDispersal  N
 
@@ -73,6 +74,7 @@ eco1	Absorb
 << Natural Enemy Dipsersal >>
 EnemyFilterRadius  150
 EnemyDispersalProp  0.5
+EnemyEdgeWrapReduction  1.0
 EnemyBiasedProp  0.5
 << EnemyEdgeEffect >>
 eco0	Reflect

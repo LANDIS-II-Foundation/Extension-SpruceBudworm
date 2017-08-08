@@ -53,6 +53,7 @@ namespace Landis.Extension.SpruceBudworm
         private double dispersalWeight1;
         private bool wrapLDD;
         private bool lddSpeedUp;
+        private double lddEdgeWrapReduction;
         private bool positiveFecundDispersal;
         private int minSusceptibleAge;
         private double l2FilterRadius;
@@ -61,6 +62,7 @@ namespace Landis.Extension.SpruceBudworm
         private double enemyDispersalProp;
         private string enemyEdgeEffect;
         private double enemyBiasedProp;
+        private double enemyEdgeWrapReduction;
         private Landis.Library.Parameters.Species.AuxParm<bool> sbwHost;
         private Landis.Library.Parameters.Species.AuxParm<bool> deciduous;
         private string pctDefolMapName;
@@ -696,6 +698,23 @@ namespace Landis.Extension.SpruceBudworm
         }
         //---------------------------------------------------------------------
         /// <summary>
+        /// Reduction in survival due to dispersal off map edge
+        /// </summary>
+        public double LDDEdgeWrapReduction
+        {
+            get
+            {
+                return lddEdgeWrapReduction;
+            }
+            set
+            {
+                if (value < 0)
+                    throw new InputValueException(value.ToString(), "LDDEdgeWrapReduction must be >= 0.");
+                lddEdgeWrapReduction = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
         /// Positive Fecundity effect on LD Dispersal.
         /// </summary>
         public bool PositiveFecundDispersal
@@ -822,6 +841,23 @@ namespace Landis.Extension.SpruceBudworm
             set
             {
                 enemyBiasedProp = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Enemy reduction in dispersal survival due to dispersal off the map (wrapping)
+        /// </summary>
+        public double EnemyEdgeWrapReduction
+        {
+            get
+            {
+                return enemyEdgeWrapReduction;
+            }
+            set
+            {
+                if (value < 0)
+                    throw new InputValueException(value.ToString(), "EnemyEdgeWrapReduction must be >= 0.");
+                enemyEdgeWrapReduction = value;
             }
         }
         //---------------------------------------------------------------------

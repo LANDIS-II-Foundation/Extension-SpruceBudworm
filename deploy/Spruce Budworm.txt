@@ -1,7 +1,7 @@
 LandisData   Extension
 
 Name         "Spruce Budworm"
-Version      "0.23 (beta 23 release)"
+Version      "0.24 (beta 24 release)"
 Type         disturbance
 Assembly     Landis.Extension.SpruceBudworm
 Class        Landis.Extension.SpruceBudworm.PlugIn

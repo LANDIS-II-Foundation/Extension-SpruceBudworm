@@ -299,6 +299,11 @@ namespace Landis.Extension.SpruceBudworm
                 parameters.LDDSpeedUp = false;
             }
 
+            // Read LDD Edge Wrap Reduction
+            InputVar<double> lddEdgeWrapReduction = new InputVar<double>("LDDEdgeWrapReduction");
+            ReadVar(lddEdgeWrapReduction);
+            parameters.LDDEdgeWrapReduction = lddEdgeWrapReduction.Value;
+
             // Read Positive Fecundity Dispersal boolean
             InputVar<bool> positiveFecundDispersal = new InputVar<bool>("PositiveFecundityDispersal");
             ReadVar(positiveFecundDispersal);
@@ -369,6 +374,10 @@ namespace Landis.Extension.SpruceBudworm
                 parameters.EnemyDispersalProp = 1.0;
             }
 
+            // Read Enemy Edge Wrap Reduction
+            InputVar<double> enemyEdgeWrapReduction = new InputVar<double>("EnemyEdgeWrapReduction");
+            ReadVar(enemyEdgeWrapReduction);
+            parameters.EnemyEdgeWrapReduction = enemyEdgeWrapReduction.Value;
             
             // Read EnemyEdge Effect parameter
             InputVar<double> enemyBiasedProp = new InputVar<double>("EnemyBiasedProp");

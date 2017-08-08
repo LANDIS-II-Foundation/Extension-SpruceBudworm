@@ -149,6 +149,8 @@ namespace Landis.Extension.SpruceBudworm
         { get; set; }
         bool LDDSpeedUp
         { get; set; }
+        double LDDEdgeWrapReduction
+        { get; set; }
         bool PositiveFecundDispersal
         { get; set; }
         int MinSusceptibleAge
@@ -164,6 +166,8 @@ namespace Landis.Extension.SpruceBudworm
         string EnemyEdgeEffect
         { get; set; }
         double EnemyBiasedProp
+        { get; set; }
+        double EnemyEdgeWrapReduction
         { get; set; }
         Landis.Library.Parameters.Species.AuxParm<bool> SBWHost
         { get; set; }

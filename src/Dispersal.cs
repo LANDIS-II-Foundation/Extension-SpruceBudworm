@@ -124,7 +124,7 @@ namespace Landis.Extension.SpruceBudworm
                     if (PlugIn.Parameters.LDDSpeedUp)
                     {
                         //DisperseLDDSpeedUp(site, PlugIn.Parameters.WrapLDD);
-                        DisperseLDDBinarySearch(site, PlugIn.Parameters.WrapLDD);
+                        DisperseLDDBinarySearch(site, PlugIn.Parameters.WrapLDD,PlugIn.Parameters.LDDEdgeWrapReduction);
                     }
                     else
                     {
@@ -150,7 +150,7 @@ namespace Landis.Extension.SpruceBudworm
             }
         }
 
-        public static void DisperseLDDBinarySearch(Site site, bool wrapLDD)
+        public static void DisperseLDDBinarySearch(Site site, bool wrapLDD, double enemyEdgeWrapReduction)
         {
             //var s1 = Stopwatch.StartNew();
             int disperseCount = (int)Math.Round(SiteVars.LDDout[site]);
@@ -189,25 +189,32 @@ namespace Landis.Extension.SpruceBudworm
             //s1.Stop();
             //Console.WriteLine("Time to search " + randList.Count() + " probability:" + ((double)(s1.Elapsed.TotalSeconds)).ToString("0.0000 s"));
             //Console.WriteLine();
-           
+
 
             foreach (Pair locationPair in disperseList)
             {
                 double dir = locationPair.First;
                 double distance = locationPair.Second;
-                double dj = Math.Cos(dir) * distance;
-                double dk = Math.Sin(dir) * distance;
-                int j = (int)Math.Round(dj / PlugIn.ModelCore.CellLength);
-                int k = (int)Math.Round(dk / PlugIn.ModelCore.CellLength);
+                double dj = Math.Cos(dir) * distance;  // distance in x-direction (m)
+                double dk = Math.Sin(dir) * distance;  // distance in y-direction (m)
+                int j = (int)Math.Round(dj / PlugIn.ModelCore.CellLength);  // distance in x-direction (cells)
+                int k = (int)Math.Round(dk / PlugIn.ModelCore.CellLength);  // distance in y-direction (cells)
 
                 int target_x = site.Location.Column + j;
                 int target_y = site.Location.Row + k;
+
+                bool leftMap = false;  //  Does dispersal leave the map (wrap)?
 
                 // wrapLDD causes dispersers to stay within the landscape by wrapping the dispersal vector around the landscape (i.e., torus)
                 if (wrapLDD)
                 {
                     int landscapeRows = PlugIn.ModelCore.Landscape.Rows;
                     int landscapeCols = PlugIn.ModelCore.Landscape.Columns;
+
+                    if (target_x < 0 || target_y < 0 || target_x > landscapeCols || target_y > landscapeRows)
+                    {
+                        leftMap = true;  // Dispersal goes off the map and wraps
+                    }
 
                     //remainRow=SIGN(C4)*MOD(ABS(C4),$B$1)
                     int remainRow = Math.Sign(k) * (Math.Abs(k) % landscapeRows);
@@ -250,12 +257,19 @@ namespace Landis.Extension.SpruceBudworm
                 }
                 RelativeLocation targetLocation = new RelativeLocation(target_y - site.Location.Row, target_x - site.Location.Column);
                 Site targetSite = site.GetNeighbor(targetLocation);
-                SiteVars.Dispersed[targetSite]++;
+                if (leftMap)
+                {
+                    SiteVars.Dispersed[targetSite] = SiteVars.Dispersed[targetSite] + enemyEdgeWrapReduction;
+                }
+                else
+                {
+                    SiteVars.Dispersed[targetSite]++;
+                }
             }
         
         }
 
-        public static void DisperseLDDSpeedUp(Site site, bool wrapLDD)
+        public static void DisperseLDDSpeedUp(Site site, bool wrapLDD, double lddEdgeWrapReduction)
         {
             //var s1 = Stopwatch.StartNew();
             int disperseCount = (int)Math.Round(SiteVars.LDDout[site]);
@@ -402,19 +416,27 @@ namespace Landis.Extension.SpruceBudworm
                 {
                     double dir = locationPair.First;
                     double distance = locationPair.Second;
-                    double dj = Math.Cos(dir) * distance;
-                    double dk = Math.Sin(dir) * distance;
-                    int j = (int)Math.Round(dj / PlugIn.ModelCore.CellLength);
-                    int k = (int)Math.Round(dk / PlugIn.ModelCore.CellLength);
+                    double dj = Math.Cos(dir) * distance;  // distance in x-direction (m)
+                    double dk = Math.Sin(dir) * distance;  // distance in y-direction (m)
+                    int j = (int)Math.Round(dj / PlugIn.ModelCore.CellLength);  // distance in x-direction (cells)
+                    int k = (int)Math.Round(dk / PlugIn.ModelCore.CellLength);  // distance in y-direction (cells)
 
                     int target_x = site.Location.Column + j;
                     int target_y = site.Location.Row + k;
+
+                    bool leftMap = false;  //  Does dispersal leave the map (wrap)?
 
                     // wrapLDD causes dispersers to stay within the landscape by wrapping the dispersal vector around the landscape (i.e., torus)
                     if (wrapLDD)
                     {
                         int landscapeRows = PlugIn.ModelCore.Landscape.Rows;
                         int landscapeCols = PlugIn.ModelCore.Landscape.Columns;
+
+                        
+                        if(target_x < 0 || target_y < 0 || target_x > landscapeCols || target_y > landscapeRows)
+                        {
+                            leftMap = true;  // Dispersal goes off the map and wraps
+                        }
 
                         //remainRow=SIGN(C4)*MOD(ABS(C4),$B$1)
                         int remainRow = Math.Sign(k) * (Math.Abs(k) % landscapeRows);
@@ -457,7 +479,15 @@ namespace Landis.Extension.SpruceBudworm
                     }
                     RelativeLocation targetLocation = new RelativeLocation(target_y - site.Location.Row, target_x - site.Location.Column);
                     Site targetSite = site.GetNeighbor(targetLocation);
-                    SiteVars.Dispersed[targetSite]++;
+                    if(leftMap)
+                    {
+                        SiteVars.Dispersed[targetSite] = SiteVars.Dispersed[targetSite] + lddEdgeWrapReduction;
+                    }
+                    else
+                    {
+                        SiteVars.Dispersed[targetSite]++;
+                    }
+                    
                     //SiteVars.Dispersed[targetSite] = SiteVars.Dispersed[targetSite] + 100; // Each moth carries 100 eggs
                 }
             }
