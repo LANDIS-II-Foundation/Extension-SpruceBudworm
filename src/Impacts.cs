@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Landis.Core;
 using Landis.SpatialModeling;
+using Landis.Library.BiomassCohorts;
 
 namespace Landis.Extension.SpruceBudworm
 {
