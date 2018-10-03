@@ -37,6 +37,9 @@ namespace Landis.Extension.SpruceBudworm
         private static ISiteVar<double> decidProp;
         private static ISiteVar<double> disperse_n;
         private static ISiteVar<double> disperse_v;
+        private static ISiteVar<Event> lastEvent;
+        private static ISiteVar<int> timeOfLastEvent;
+        private static ISiteVar<int> severity;
 
         
 
@@ -71,7 +74,11 @@ namespace Landis.Extension.SpruceBudworm
             decidProp = PlugIn.ModelCore.Landscape.NewSiteVar<double>();
             disperse_n = PlugIn.ModelCore.Landscape.NewSiteVar<double>();
             disperse_v = PlugIn.ModelCore.Landscape.NewSiteVar<double>();
+            lastEvent = PlugIn.ModelCore.Landscape.NewSiteVar<Event>();
+            timeOfLastEvent = PlugIn.ModelCore.Landscape.NewSiteVar<int>();
+            severity = PlugIn.ModelCore.Landscape.NewSiteVar<int>();
 
+            SiteVars.TimeOfLastEvent.ActiveSiteValues = -10000;
 
             ageCohorts = PlugIn.ModelCore.GetSiteVar<Landis.Library.AgeOnlyCohorts.ISiteCohorts>("Succession.AgeCohorts");
             biomassCohorts = PlugIn.ModelCore.GetSiteVar<Landis.Library.BiomassCohorts.ISiteCohorts>("Succession.BiomassCohorts");
@@ -283,6 +290,30 @@ namespace Landis.Extension.SpruceBudworm
             get
             {
                 return disperse_v;
+            }
+        }
+        //---------------------------------------------------------------------
+        public static ISiteVar<int> TimeOfLastEvent
+        {
+            get
+            {
+                return timeOfLastEvent;
+            }
+        }
+        //---------------------------------------------------------------------
+        public static ISiteVar<int> Severity
+        {
+            get
+            {
+                return severity;
+            }
+        }
+        //---------------------------------------------------------------------
+        public static ISiteVar<Event> Event
+        {
+            get
+            {
+                return lastEvent;
             }
         }
         //---------------------------------------------------------------------

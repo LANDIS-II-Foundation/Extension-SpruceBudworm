@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <PackageReference Include="Landis.Core" Version="2.0.0" />
-    <PackageReference Include="Landis.Core.Implementation" Version="2.0.0" />
   </ItemGroup>
   
   <ItemGroup>
@@ -36,8 +35,8 @@
     <Reference Include="Landis.Library.Biomass-v2">
       <HintPath>lib\Landis.Library.Biomass-v2.dll</HintPath>
     </Reference>
-    <Reference Include="Landis.Library.BiomassCohorts-v3">
-      <HintPath>lib\Landis.Library.BiomassCohorts-v3.dll</HintPath>
+    <Reference Include="Landis.Library.BiomassCohorts_vSBW">
+      <HintPath>..\..\..\..\..\Program Files\LANDIS-II-v7\extensions\Landis.Library.BiomassCohorts_vSBW.dll</HintPath>
     </Reference>
     <Reference Include="Landis.Library.Cohorts-v2">
       <HintPath>lib\Landis.Library.Cohorts-v2.dll</HintPath>
@@ -49,6 +48,10 @@
       <HintPath>lib\Landis.Library.Parameters-v2.dll</HintPath>
     </Reference>
   </ItemGroup>
+  
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy $(TargetPath)  &quot;C:\Program Files\LANDIS-II-v7\extensions&quot;" />
+  </Target>
 
 </Project>
 
