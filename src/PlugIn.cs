@@ -142,7 +142,10 @@ namespace Landis.Extension.SpruceBudworm
                 // Draw random overwinter survival (to be applied globally)
                 // To be replaced with spatially-autocorrelated winter temp function
                 PlugIn.ModelCore.NormalDistribution.Mu = parameters.OverwinterMean;
-                PlugIn.ModelCore.NormalDistribution.Sigma = parameters.OverwinterStdev;
+                if (parameters.OverwinterStdev == 0)
+                    PlugIn.ModelCore.NormalDistribution.Sigma = 0.00000000000000000001;
+                else
+                    PlugIn.ModelCore.NormalDistribution.Sigma = parameters.OverwinterStdev;
                 randWinter = PlugIn.ModelCore.NormalDistribution.NextDouble();
                 randWinter = PlugIn.ModelCore.NormalDistribution.NextDouble();
                 if (parameters.OverwinterConstant)
@@ -151,7 +154,10 @@ namespace Landis.Extension.SpruceBudworm
                 // Draw random fecundity (to be applied globally)
                 // To be replaced by spatially autocorrelated function
                 PlugIn.ModelCore.NormalDistribution.Mu = parameters.FecundityMean;
-                PlugIn.ModelCore.NormalDistribution.Sigma = parameters.FecundityStdev;
+                if (parameters.FecundityStdev == 0)
+                    PlugIn.ModelCore.NormalDistribution.Sigma = 0.00000000000000000001;
+                else
+                    PlugIn.ModelCore.NormalDistribution.Sigma = parameters.FecundityStdev;
                 randFecund = PlugIn.ModelCore.NormalDistribution.NextDouble();
                 randFecund = PlugIn.ModelCore.NormalDistribution.NextDouble();
                 if (parameters.FecundityConstant)
@@ -160,7 +166,10 @@ namespace Landis.Extension.SpruceBudworm
                 // Draw random phenological limitation (to be applied globally)
                 // To be replaced by spatially autocorrelated function
                 PlugIn.ModelCore.NormalDistribution.Mu = parameters.PhenolMean;
-                PlugIn.ModelCore.NormalDistribution.Sigma = parameters.PhenolStdev;
+                if (parameters.PhenolStdev == 0)
+                    PlugIn.ModelCore.NormalDistribution.Sigma = 0.00000000000000000001;
+                else
+                    PlugIn.ModelCore.NormalDistribution.Sigma = parameters.PhenolStdev;
                 phenolLimit = PlugIn.ModelCore.NormalDistribution.NextDouble();
                 phenolLimit = PlugIn.ModelCore.NormalDistribution.NextDouble();
                 if (parameters.PhenolConstant)
