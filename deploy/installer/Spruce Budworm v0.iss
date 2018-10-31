@@ -1,7 +1,7 @@
 ; LANDIS-II Extension infomation
 #define CoreRelease "LANDIS-II-V7"
 #define ExtensionName "Spruce Budworm"
-#define AppVersion "0.27"
+#define AppVersion "0.28"
 #define AppPublisher "LANDIS-II Foundation"
 #define AppURL "http://www.landis-ii.org/"
 
@@ -50,6 +50,8 @@ Source: {#BuildDir}\Landis.Extension.SpruceBudworm.dll; DestDir: {#ExtDir}; Flag
 ; Requisite auxiliary libraries
 ; NB. These libraries are used by other extensions and thus are never uninstalled.
 Source: {#BuildDir}\Landis.Library.BiomassCohorts_vSBW.dll; DestDir: {#ExtDir}; Flags: uninsneveruninstall replacesameversion
+Source: {#BuildDir}\Landis.Library.AgeOnlyCohorts-v3.dll; DestDir: {#ExtDir}; Flags: uninsneveruninstall replacesameversion
+
 
 ; LANDIS-II identifies the extension with the info in this .txt file
 ; NB. New releases must modify the name of this file and the info in it

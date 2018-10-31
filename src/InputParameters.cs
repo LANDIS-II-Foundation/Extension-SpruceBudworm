@@ -52,7 +52,10 @@ namespace Landis.Extension.SpruceBudworm
         private double dispersalWeight1;
         private bool wrapLDD;
         private bool lddSpeedUp;
-        private double lddEdgeWrapReduction;
+        private double lddEdgeWrapReduction_N;
+        private double lddEdgeWrapReduction_E;
+        private double lddEdgeWrapReduction_S;
+        private double lddEdgeWrapReduction_W;
         private bool positiveFecundDispersal;
         private int minSusceptibleAge;
         private double l2FilterRadius;
@@ -697,19 +700,62 @@ namespace Landis.Extension.SpruceBudworm
         }
         //---------------------------------------------------------------------
         /// <summary>
-        /// Reduction in survival due to dispersal off map edge
+        /// Reduction in survival due to dispersal off N map edge
         /// </summary>
-        public double LDDEdgeWrapReduction
+        public double LDDEdgeWrapReduction_N
         {
             get
             {
-                return lddEdgeWrapReduction;
+                return lddEdgeWrapReduction_N;
             }
             set
             {
-                if (value < 0)
-                    throw new InputValueException(value.ToString(), "LDDEdgeWrapReduction must be >= 0.");
-                lddEdgeWrapReduction = value;
+                lddEdgeWrapReduction_N = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Reduction in survival due to dispersal off E map edge
+        /// </summary>
+        public double LDDEdgeWrapReduction_E
+        {
+            get
+            {
+                return lddEdgeWrapReduction_E;
+            }
+            set
+            {
+                lddEdgeWrapReduction_E = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Reduction in survival due to dispersal off S map edge
+        /// </summary>
+        public double LDDEdgeWrapReduction_S
+        {
+            get
+            {
+                return lddEdgeWrapReduction_S;
+            }
+            set
+            {
+                lddEdgeWrapReduction_S = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Reduction in survival due to dispersal off W map edge
+        /// </summary>
+        public double LDDEdgeWrapReduction_W
+        {
+            get
+            {
+                return lddEdgeWrapReduction_W;
+            }
+            set
+            {
+                lddEdgeWrapReduction_W = value;
             }
         }
         //---------------------------------------------------------------------

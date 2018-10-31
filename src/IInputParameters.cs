@@ -149,7 +149,13 @@ namespace Landis.Extension.SpruceBudworm
         { get; set; }
         bool LDDSpeedUp
         { get; set; }
-        double LDDEdgeWrapReduction
+        double LDDEdgeWrapReduction_N
+        { get; set; }
+        double LDDEdgeWrapReduction_E
+        { get; set; }
+        double LDDEdgeWrapReduction_S
+        { get; set; }
+        double LDDEdgeWrapReduction_W
         { get; set; }
         bool PositiveFecundDispersal
         { get; set; }

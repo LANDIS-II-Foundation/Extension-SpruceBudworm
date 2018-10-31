@@ -299,9 +299,25 @@ namespace Landis.Extension.SpruceBudworm
             }
 
             // Read LDD Edge Wrap Reduction
-            InputVar<double> lddEdgeWrapReduction = new InputVar<double>("LDDEdgeWrapReduction");
-            ReadVar(lddEdgeWrapReduction);
-            parameters.LDDEdgeWrapReduction = lddEdgeWrapReduction.Value;
+            ReadName("LDDEdgeWrapReduction");
+            currentLine = new StringReader(CurrentLine);
+
+            InputVar<double> lddEdgeWrapReduction_N = new InputVar<double>("LDDEdgeWrapReduction_N");
+            ReadValue(lddEdgeWrapReduction_N, currentLine);
+            parameters.LDDEdgeWrapReduction_N = lddEdgeWrapReduction_N.Value;
+
+            InputVar<double> lddEdgeWrapReduction_E = new InputVar<double>("LDDEdgeWrapReduction_E");
+            ReadValue(lddEdgeWrapReduction_E, currentLine);
+            parameters.LDDEdgeWrapReduction_E = lddEdgeWrapReduction_E.Value;
+
+            InputVar<double> lddEdgeWrapReduction_S = new InputVar<double>("LDDEdgeWrapReduction_S");
+            ReadValue(lddEdgeWrapReduction_S, currentLine);
+            parameters.LDDEdgeWrapReduction_S = lddEdgeWrapReduction_S.Value;
+
+            InputVar<double> lddEdgeWrapReduction_W = new InputVar<double>("LDDEdgeWrapReduction_W");
+            ReadValue(lddEdgeWrapReduction_W, currentLine);
+            parameters.LDDEdgeWrapReduction_W = lddEdgeWrapReduction_W.Value;
+            GetNextLine();
 
             // Read Positive Fecundity Dispersal boolean
             InputVar<bool> positiveFecundDispersal = new InputVar<bool>("PositiveFecundityDispersal");

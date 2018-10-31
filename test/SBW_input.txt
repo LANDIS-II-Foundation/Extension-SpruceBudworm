@@ -59,7 +59,11 @@ LDDDispersalKernel
    5000  10000  1.0
 WrapLDD Y
 LDDSpeedUp	Y
-LDDEdgeWrapReduction  0.5
+			
+LDDEdgeWrapReduction  	
+<< N  E  S  W
+1.0  0  0.3  0.3
+
 
 PositiveFecundityDispersal  N
 

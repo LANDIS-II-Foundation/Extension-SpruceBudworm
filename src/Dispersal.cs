@@ -124,7 +124,7 @@ namespace Landis.Extension.SpruceBudworm
                     if (PlugIn.Parameters.LDDSpeedUp)
                     {
                         //DisperseLDDSpeedUp(site, PlugIn.Parameters.WrapLDD);
-                        DisperseLDDBinarySearch(site, PlugIn.Parameters.WrapLDD,PlugIn.Parameters.LDDEdgeWrapReduction);
+                        DisperseLDDBinarySearch(site, PlugIn.Parameters.WrapLDD,PlugIn.Parameters.LDDEdgeWrapReduction_N, PlugIn.Parameters.LDDEdgeWrapReduction_E,PlugIn.Parameters.LDDEdgeWrapReduction_S,PlugIn.Parameters.LDDEdgeWrapReduction_W);
                     }
                     else
                     {
@@ -150,7 +150,7 @@ namespace Landis.Extension.SpruceBudworm
             }
         }
 
-        public static void DisperseLDDBinarySearch(Site site, bool wrapLDD, double enemyEdgeWrapReduction)
+        public static void DisperseLDDBinarySearch(Site site, bool wrapLDD, double lddEdgeWrapReduction_N, double lddEdgeWrapReduction_E, double lddEdgeWrapReduction_S, double lddEdgeWrapReduction_W)
         {
             //var s1 = Stopwatch.StartNew();
             int disperseCount = (int)Math.Round(SiteVars.LDDout[site]);
@@ -203,7 +203,10 @@ namespace Landis.Extension.SpruceBudworm
                 int target_x = site.Location.Column + j;
                 int target_y = site.Location.Row + k;
 
-                bool leftMap = false;  //  Does dispersal leave the map (wrap)?
+                bool leftMapN = false;  //  Does dispersal leave the map to the North (wrap)?
+                bool leftMapE = false;  //  Does dispersal leave the map to the East (wrap)?
+                bool leftMapS = false;  //  Does dispersal leave the map to the South (wrap)?
+                bool leftMapW = false;  //  Does dispersal leave the map to the West (wrap)?
 
                 // wrapLDD causes dispersers to stay within the landscape by wrapping the dispersal vector around the landscape (i.e., torus)
                 if (wrapLDD)
@@ -211,9 +214,21 @@ namespace Landis.Extension.SpruceBudworm
                     int landscapeRows = PlugIn.ModelCore.Landscape.Rows;
                     int landscapeCols = PlugIn.ModelCore.Landscape.Columns;
 
-                    if (target_x < 0 || target_y < 0 || target_x > landscapeCols || target_y > landscapeRows)
+                    if (target_x < 0)
                     {
-                        leftMap = true;  // Dispersal goes off the map and wraps
+                        leftMapW = true;  // Dispersal goes off the map to the West and wraps
+                    }
+                    if (target_y < 0)
+                    {
+                        leftMapN = true;  // Dispersal goes off the map to the North and wraps
+                    }
+                    if (target_x > landscapeCols)
+                    {
+                        leftMapE = true;  // Dispersal goes off the map to the East and wraps
+                    }
+                    if (target_y > landscapeRows)
+                    {
+                        leftMapS = true;  // Dispersal goes off the map to the South and wraps
                     }
 
                     //remainRow=SIGN(C4)*MOD(ABS(C4),$B$1)
@@ -257,14 +272,24 @@ namespace Landis.Extension.SpruceBudworm
                 }
                 RelativeLocation targetLocation = new RelativeLocation(target_y - site.Location.Row, target_x - site.Location.Column);
                 Site targetSite = site.GetNeighbor(targetLocation);
-                if (leftMap)
+                double addPop = 1;
+                if (leftMapN)
                 {
-                    SiteVars.Dispersed[targetSite] = SiteVars.Dispersed[targetSite] + enemyEdgeWrapReduction;
+                    addPop = addPop * lddEdgeWrapReduction_S;  //Apply the reduction factor for the edge coming back onto the map (opposite of where it left)
                 }
-                else
+                if (leftMapE)
                 {
-                    SiteVars.Dispersed[targetSite]++;
+                    addPop = addPop * lddEdgeWrapReduction_W;  //Apply the reduction factor for the edge coming back onto the map (opposite of where it left)
                 }
+                if (leftMapS)
+                {
+                    addPop = addPop * lddEdgeWrapReduction_N;  //Apply the reduction factor for the edge coming back onto the map (opposite of where it left)
+                }
+                if (leftMapW)
+                {
+                    addPop = addPop * lddEdgeWrapReduction_E;  //Apply the reduction factor for the edge coming back onto the map (opposite of where it left)
+                }
+                SiteVars.Dispersed[targetSite] = SiteVars.Dispersed[targetSite] + addPop;  //Add dispersed individual (or partial individual)
             }
         
         }
