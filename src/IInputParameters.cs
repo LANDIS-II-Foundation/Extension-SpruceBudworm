@@ -173,7 +173,13 @@ namespace Landis.Extension.SpruceBudworm
         { get; set; }
         double EnemyBiasedProp
         { get; set; }
-        double EnemyEdgeWrapReduction
+        double EnemyEdgeWrapReduction_N
+        { get; set; }
+        double EnemyEdgeWrapReduction_E
+        { get; set; }
+        double EnemyEdgeWrapReduction_S
+        { get; set; }
+        double EnemyEdgeWrapReduction_W
         { get; set; }
         Landis.Library.Parameters.Species.AuxParm<bool> SBWHost
         { get; set; }

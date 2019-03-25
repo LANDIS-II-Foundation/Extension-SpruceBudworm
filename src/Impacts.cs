@@ -96,7 +96,7 @@ namespace Landis.Extension.SpruceBudworm
         /// <returns></returns>
         public static double CohortGrowthReduction(Landis.Library.BiomassCohorts.ICohort cohort, ActiveSite site)
         {
-            // Calculate cumulative defoliation (13)
+            // Calculate cumulative defoliation (16)
             // Cumulative Annual Weighted Defoliation (Hennigar)
             double annWtDefol0 = cohort.DefoliationHistory[0] * 0.28;
             double annWtDefol1 = cohort.DefoliationHistory[1] * 0.26;
@@ -106,7 +106,7 @@ namespace Landis.Extension.SpruceBudworm
             double annWtDefol5 = cohort.DefoliationHistory[5] * 0.03;
             double cumAnnWtDefol = annWtDefol0 + annWtDefol1 + annWtDefol2 + annWtDefol3 + annWtDefol4 + annWtDefol5;
 
-            // Calculate host tree impacts (14)
+            // Calculate host tree impacts (17b)
             // Growth reduction
             double growthReduction = 0;
             if (PlugIn.Parameters.GrowthReduction)
@@ -133,7 +133,7 @@ namespace Landis.Extension.SpruceBudworm
         public static double CohortMortality(Landis.Library.BiomassCohorts.ICohort cohort)
         {
 
-            // Calculate cumulative defoliation (13)
+            // Calculate cumulative defoliation (16)
             // Cumulative Annual Weighted Defoliation (Hennigar)
             double annWtDefol0 = cohort.DefoliationHistory[0] * 0.28;
             double annWtDefol1 = cohort.DefoliationHistory[1] * 0.26;
@@ -143,7 +143,7 @@ namespace Landis.Extension.SpruceBudworm
             double annWtDefol5 = cohort.DefoliationHistory[5] * 0.03;
             double cumAnnWtDefol = annWtDefol0 + annWtDefol1 + annWtDefol2 + annWtDefol3 + annWtDefol4 + annWtDefol5;
 
-            // Allocate impacts to cohorts (10a)
+            // Allocate impacts to cohorts (17a)
             // Mortality
             // Hennigar method
             double percentMortality = 0;

@@ -109,7 +109,7 @@ namespace Landis.Extension.SpruceBudworm
             }
         }
         //---------------------------------------------------------------------
-        public static ISiteVar<double> BudwormDensityL2
+        public static ISiteVar<double> BudwormDensL2Scaled
         {
             get
             {
@@ -476,7 +476,7 @@ namespace Landis.Extension.SpruceBudworm
             {
                 // spatial average filter spring enemy counts
                 // Spatial filter in neighborhood
-                double filteredEnemySpring = LocalDispersalEnemies(site, PlugIn.Parameters.EnemyFilterRadius, PlugIn.Parameters.EnemyEdgeEffect,PlugIn.Parameters.EcoParameters,PlugIn.Parameters.EnemyDispersalProp,PlugIn.Parameters.EnemyBiasedProp);
+                double filteredEnemyCount = LocalDispersalEnemies(site);
                 //sumEnemyFiltered += filteredEnemySpring;
             }
 
@@ -491,49 +491,50 @@ namespace Landis.Extension.SpruceBudworm
                 double budwormDensityL2 = SiteVars.FilteredDensitySpring[site];
             
                 // Apply scaling parameters (7)
-                double budwormDensityL2Scaled = Math.Pow((budwormDensityL2 / PlugIn.Parameters.PreyM), (1.0 / PlugIn.Parameters.PreyN));
-                
+                double budwormDensL2Scaled = Math.Pow((budwormDensityL2 / PlugIn.Parameters.PreyM), (1.0 / PlugIn.Parameters.PreyN));
+                SiteVars.BudwormDensL2Scaled[site] = budwormDensL2Scaled;
+
                 // calculate scaled budworm L2 count (8)
                 double budwormCountL2 = 0;
                 double currentHostFoliage = SiteVars.CurrentHostFoliage[site];
                 if (currentHostFoliage > 0)
-                    budwormCountL2 = budwormDensityL2Scaled * currentHostFoliage;
-
-                SiteVars.BudwormDensityL2[site] = budwormDensityL2Scaled;
+                    budwormCountL2 = budwormDensL2Scaled * currentHostFoliage;                
 
                 // calculate enemy density (9)
                 double enemyDensitySpring = 0;
                 double budwormCountSpring = SiteVars.FilteredBudwormSpring[site];
                 double minDensity = 10e-250;
-                if (budwormCountSpring > minDensity) // At very low budworm densities the budworm and enemies go to 0
+                if (budwormCountSpring > minDensity) // At very low budworm counts the budworm and enemies go to 0
                     enemyDensitySpring = SiteVars.FilteredEnemyCount[site] / budwormCountSpring;
                 else
                     budwormCountSpring = 0;
-                //Apply scaling parameters (9)
-                double enemyDensitySpringScaled = Math.Pow((enemyDensitySpring / PlugIn.Parameters.PredM), (1.0 / PlugIn.Parameters.PredN));
                 SiteVars.EnemyDensity[site] = enemyDensitySpring;
 
-                // calculate mating effect (10a)
+                //Apply scaling parameters (10)
+                double enemyDensitySpringScaled = Math.Pow((enemyDensitySpring / PlugIn.Parameters.PredM), (1.0 / PlugIn.Parameters.PredN));
+                
+
+                // calculate mating effect (11a)
                 double matingEffect = ProportionMatedFunction(PlugIn.Parameters.MatingEffectA, PlugIn.Parameters.MatingEffectB, PlugIn.Parameters.MatingEffectC, budwormDensityL2);
 
-                // calculate deciduous protection effect (10b)
+                // calculate deciduous protection effect (11b)
                 double decidProportion = CalculateDecidProportion(site, PlugIn.Parameters.Deciduous);
                 double decidProtect1 = decidProportion * PlugIn.Parameters.DecidProtectMax1;  // dispersal loss effect
                 double decidProtect2 = decidProportion * PlugIn.Parameters.DecidProtectMax2;  // parasite community composition effect
 
-                // recruitment functions (11)
-                double ryx = 1 - Math.Exp((-1 * PlugIn.Parameters.EnemyParamb * budwormDensityL2Scaled) - decidProtect2);
+                // recruitment functions (12)
+                double ryx = 1 - Math.Exp((-1 * PlugIn.Parameters.EnemyParamb * budwormDensL2Scaled) - decidProtect2);
                 double rxy = Math.Exp(-1 * PlugIn.Parameters.EnemyParamc * enemyDensitySpringScaled);
                 double rt = PlugIn.Parameters.MaxReproEnemy * ryx * rxy;
                 
                 // calculate r't (rprimet) without foliage dependence
-                double rprimeyx = Math.Exp(-1 * (PlugIn.Parameters.SBWParamb + decidProtect1) * Math.Pow(budwormDensityL2Scaled, PlugIn.Parameters.SBWParama));
+                double rprimeyx = Math.Exp(-1 * (PlugIn.Parameters.SBWParamb + decidProtect1) * Math.Pow(budwormDensL2Scaled, PlugIn.Parameters.SBWParama));
                 double rprimexy = Math.Exp(-1 * (PlugIn.Parameters.SBWParamc * enemyDensitySpringScaled));
                 double fecundity = 216.8;
                 double rprimet = fecundity * PlugIn.Parameters.MaxReproSBW * rprimeyx * rprimexy * matingEffect;
 
                 // Host Tree Damage
-                // Calculate defoliation (12)
+                // Calculate defoliation (15)
                 // Use Regniere and You 1991; Eq. 13
                 //double defolPopulationComp = 0.385; // Product of indivudual instar [lambda + (1-lambda)*S]
                 double allLarvalSurvival = rprimeyx * rprimexy;
@@ -552,10 +553,10 @@ namespace Landis.Extension.SpruceBudworm
                 double rprimeZ = (-0.0054 * pctDefol + 1); //Nealis & Regniere 2004, Fig 2
                 double rprime2t = fecundity * PlugIn.Parameters.MaxReproSBW * rprimeZ * rprimeyx * rprimexy * matingEffect;
 
-                // calculate enemy density following recruitment (11)
+                // calculate enemy density following recruitment (12)
                 double enemyDensitySummer = enemyDensitySpringScaled * rt;
 
-                // calculate budworm density following recruitment (11)
+                // calculate budworm density following recruitment (12)
                 double budwormDensitySummer = 0;
                 if (SiteVars.FilteredDensitySpring[site] > 0)
                 {
@@ -715,19 +716,20 @@ namespace Landis.Extension.SpruceBudworm
         }
         //---------------------------------------------------------------------
         // This disperses local count among self and neighbors
-        public static double LocalDispersalEnemies(Site site, double enemyFilterRadius, string edgeEffect, IEcoParameters[] ecoParameters,double enemyDispersalProp, double enemyBiasedProp)
+        public static double LocalDispersalEnemies(Site site)
         {
             List<Site> siteList = new List<Site>();
             int maxCells = 0;
             double sumDensity = 0;
-            List<bool> leftMapList = new List<bool>();
-            FindNeighborSites(out siteList, out leftMapList, out maxCells, out sumDensity, site, enemyFilterRadius, "enemies", ecoParameters);
+            List<string> leftMapList = new List<string>();
+
+            FindNeighborSites(out siteList, out leftMapList, out maxCells, out sumDensity, site, PlugIn.Parameters.EnemyFilterRadius, "enemies", PlugIn.Parameters.EcoParameters);
             int siteCount = siteList.Count;
             double avgDensity = sumDensity / siteCount;
             double adjSumDensity = sumDensity + (avgDensity * (maxCells - siteCount));
-            double enemiesToDisperse = SiteVars.EnemyCount[site] * enemyDispersalProp;
+            double enemiesToDisperse = SiteVars.EnemyCount[site] * PlugIn.Parameters.EnemyDispersalProp;
             double enemiesToStayLocal = SiteVars.EnemyCount[site] - enemiesToDisperse;
-            double enemiesBiasedDisperse = enemiesToDisperse * enemyBiasedProp;
+            double enemiesBiasedDisperse = enemiesToDisperse * PlugIn.Parameters.EnemyBiasedProp;
             double enemiesUnbiasedDisperse = enemiesToDisperse - enemiesBiasedDisperse;
             double dispersedCount = 0;
             // Calculate number to disperse to each site in neighborhood           
@@ -739,23 +741,33 @@ namespace Landis.Extension.SpruceBudworm
             foreach (Site disperseSite in siteList)
             {
                 dispersedCount = unbiasedDisperseCount;
-                bool leftMap = leftMapList[siteIndex];
-                if (edgeEffect.Equals("Biased", StringComparison.OrdinalIgnoreCase))
+                string leftMap = leftMapList[siteIndex];
+                if (PlugIn.Parameters.EnemyEdgeEffect.Equals("Biased", StringComparison.OrdinalIgnoreCase))
                 {
                     double biasIndex = SiteVars.FilteredBudwormSpring[disperseSite] / sumDensity;
                     dispersedCount += enemiesBiasedDisperse * biasIndex;
                 }
-                if (leftMap)
+                double edgeWrapReduction = 1.0;
+                if (leftMap.Contains("N"))
                 {
-                    SiteVars.FilteredEnemyCount[disperseSite] += (dispersedCount * PlugIn.Parameters.EnemyEdgeWrapReduction);
-                    sumDispersed += (dispersedCount * PlugIn.Parameters.EnemyEdgeWrapReduction);
+                    edgeWrapReduction = edgeWrapReduction * PlugIn.Parameters.EnemyEdgeWrapReduction_N;
                 }
-                else
+                if (leftMap.Contains("E"))
                 {
-                    SiteVars.FilteredEnemyCount[disperseSite] += dispersedCount;
-                    sumDispersed += dispersedCount;
+                    edgeWrapReduction = edgeWrapReduction * PlugIn.Parameters.EnemyEdgeWrapReduction_E;
                 }
-                
+                if (leftMap.Contains("S"))
+                {
+                    edgeWrapReduction = edgeWrapReduction * PlugIn.Parameters.EnemyEdgeWrapReduction_S;
+                }
+                if (leftMap.Contains("W"))
+                {
+                    edgeWrapReduction = edgeWrapReduction * PlugIn.Parameters.EnemyEdgeWrapReduction_W;
+                }
+                SiteVars.FilteredEnemyCount[disperseSite] += dispersedCount * edgeWrapReduction;
+                sumDispersed += dispersedCount * edgeWrapReduction;
+
+
                 siteIndex++;
             }
             SiteVars.FilteredEnemyCount[site] += enemiesToStayLocal;
@@ -779,7 +791,6 @@ namespace Landis.Extension.SpruceBudworm
         }
 
          // This disperses local count among self and neighbors
-        // Old method
         public static double DisperseSDD(Site site, double sddRadius, string edgeEffect, IEcoParameters[] ecoParameters)
         {
             List<Site> siteList = new List<Site>();  //List of cells to disperse to (takes into account edge effects)
@@ -1139,6 +1150,163 @@ namespace Landis.Extension.SpruceBudworm
                         }
 
                        if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (neighbor.IsActive)
+                            {
+                                maxCellCount++;
+                                tempSiteList.Add(neighbor);
+                                tempLeftList.Add(leftMap);
+                            }
+                            tempSumDensity += neighborDensity;
+                        }
+                        else if (edgeEffect.Equals("Absorb", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (neighbor.IsActive)
+                            {
+                                tempSiteList.Add(neighbor);
+                                tempLeftList.Add(leftMap);
+                            }
+                            maxCellCount++;
+                            tempSumDensity += neighborDensity;
+                        }
+                        else
+                        {
+                            //throw error
+                            string mesg = string.Format("Edge effect for {0} is not Reflect, Absorb", option);
+                            throw new System.ApplicationException(mesg);
+                        }
+                    }
+                }
+            }
+            siteList = tempSiteList;
+            maxCells = maxCellCount;
+            sumDensity = tempSumDensity;
+            leftMapList = tempLeftList;
+            //return siteList;
+        }
+
+        //Modified code - wrapping, with edge wrap reductions
+        private static void FindNeighborSites(out List<Site> siteList, out List<string> leftMapList, out int maxCells, out double sumDensity, Site site, double radius, string option, IEcoParameters[] ecoParameters)
+        {
+            double CellLength = PlugIn.ModelCore.CellLength;
+
+            //List<RelativeLocation> neighborhood = new List<RelativeLocation>();
+
+            int numCellRadius = (int)(radius / CellLength);
+            //PlugIn.ModelCore.UI.WriteLine("NeighborRadius={0}, CellLength={1}, numCellRadius={2}",radius, CellLength, numCellRadius);
+            double centroidDistance = 0;
+            double cellLength = CellLength;
+
+            // Count the neighbor cells to disperse to (including source site)
+            List<Site> tempSiteList = new List<Site>();
+            List<string> tempLeftList = new List<string>();
+            int maxCellCount = 0;
+            double tempSumDensity = 0;
+            for (int row = (numCellRadius * -1); row <= numCellRadius; row++)
+            {
+                for (int col = (numCellRadius * -1); col <= numCellRadius; col++)
+                {
+                    centroidDistance = DistanceFromCenter(row, col);
+                    //PlugIn.ModelCore.Log.WriteLine("Centroid Distance = {0}.", centroidDistance);
+                    if (centroidDistance <= radius)
+                    {
+                        int j = col;
+                        int k = row;
+
+                        int target_x = site.Location.Column + j;
+                        int target_y = site.Location.Row + k;
+
+                        string leftMap = "";
+
+
+                        int landscapeRows = PlugIn.ModelCore.Landscape.Rows;
+                        int landscapeCols = PlugIn.ModelCore.Landscape.Columns;
+
+                        if (target_x < 0) // Dispersal goes off the map to the West
+                        {
+                            leftMap += "W";
+                        }
+                        if (target_y < 0) // Dispersal goes off the map to the North
+                        { 
+                            leftMap += "N";
+                        }
+                        if (target_x > landscapeCols) // Dispersal goes off the map to the East
+                        { 
+                            leftMap += "E";
+                        }
+                        if (target_y > landscapeRows) // Dispersal goes off the map to the South
+                        {
+                            leftMap += "S";
+                        }
+
+                        //remainRow=SIGN(C4)*MOD(ABS(C4),$B$1)
+                        int remainRow = Math.Sign(k) * (Math.Abs(k) % landscapeRows);
+                        int remainCol = Math.Sign(j) * (Math.Abs(j) % landscapeCols);
+                        //tempY=A4+H4
+                        int tempY = site.Location.Row + remainRow;
+                        int tempX = site.Location.Column + remainCol;
+                        //source_y=IF(J4<1,$B$1+J4,IF(J4>$B$1,MOD(J4,$B$1),J4))
+                        if (tempY < 1)
+                        {
+                            target_y = landscapeRows + tempY;
+                        }
+                        else
+                        {
+                            if (tempY > landscapeRows)
+                            {
+                                target_y = tempY % landscapeRows;
+                            }
+                            else
+                            {
+                                target_y = tempY;
+                            }
+                        }
+                        if (tempX < 1)
+                        {
+                            target_x = landscapeCols + tempX;
+                        }
+                        else
+                        {
+                            if (tempX > landscapeCols)
+                            {
+                                target_x = tempX % landscapeCols;
+                            }
+                            else
+                            {
+                                target_x = tempX;
+                            }
+                        }
+                        RelativeLocation targetLocation = new RelativeLocation(target_y - site.Location.Row, target_x - site.Location.Column);
+                        Site neighbor = site.GetNeighbor(targetLocation);
+                        IEcoregion ecoregion = PlugIn.ModelCore.Ecoregion[neighbor];
+                        if (ecoregion == null)
+                        {
+                            ecoregion = PlugIn.ModelCore.Ecoregions[0];
+                        }
+                        string edgeEffect = ecoParameters[ecoregion.Index].L2EdgeEffect;
+                        double neighborDensity = 1.0;
+
+                        if (option == "enemies")
+                        {
+                            edgeEffect = ecoParameters[ecoregion.Index].EnemyEdgeEffect;
+                            neighborDensity = SiteVars.FilteredBudwormSpring[neighbor];
+
+                        }
+                        else if (option == "sdd")
+                        {
+                            edgeEffect = ecoParameters[ecoregion.Index].SDDEdgeEffect;
+                            neighborDensity = SiteVars.TotalHostFoliage[neighbor];
+
+                        }
+
+                        if (edgeEffect == null)
+                        {
+                            // in map, but no edge effect defined
+                            // treat as "Absorb"
+                            edgeEffect = "Absorb";
+                        }
+
+                        if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
                         {
                             if (neighbor.IsActive)
                             {

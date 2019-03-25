@@ -132,7 +132,7 @@ namespace Landis.Extension.SpruceBudworm
                 {
                     foreach (Site site in PlugIn.ModelCore.Landscape.ActiveSites)
                     {
-                        SiteVars.BudwormCount[site] = SiteVars.BudwormDensityL2[site] * SiteVars.CurrentHostFoliage[site];
+                        SiteVars.BudwormCount[site] = SiteVars.BudwormDensL2Scaled[site] * SiteVars.CurrentHostFoliage[site];
                         SiteVars.EnemyCount[site] = SiteVars.EnemyDensity[site] * SiteVars.BudwormCount[site];
                     }
                 }
@@ -151,7 +151,7 @@ namespace Landis.Extension.SpruceBudworm
                 if (parameters.OverwinterConstant)
                     randWinter = parameters.OverwinterMean;
 
-                // Draw random fecundity (to be applied globally)
+                // Draw random fecundity (to be applied globally) (14a)
                 // To be replaced by spatially autocorrelated function
                 PlugIn.ModelCore.NormalDistribution.Mu = parameters.FecundityMean;
                 if (parameters.FecundityStdev == 0)
@@ -163,7 +163,7 @@ namespace Landis.Extension.SpruceBudworm
                 if (parameters.FecundityConstant)
                     randFecund = parameters.FecundityMean;
 
-                // Draw random phenological limitation (to be applied globally)
+                // Draw random phenological limitation (to be applied globally) (14b)
                 // To be replaced by spatially autocorrelated function
                 PlugIn.ModelCore.NormalDistribution.Mu = parameters.PhenolMean;
                 if (parameters.PhenolStdev == 0)

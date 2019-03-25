@@ -75,10 +75,12 @@ L2EdgeEffect	Unbiased
 eco0	Absorb
 eco1	Absorb
 
-<< Natural Enemy Dipsersal >>
+<< Natural Enemy Dispersal >>
 EnemyFilterRadius  150
 EnemyDispersalProp  0.5
-EnemyEdgeWrapReduction  0.5
+EnemyEdgeWrapReduction
+<< N  E  S  W
+1.0  0  0.3  0.3
 EnemyBiasedProp  0.5
 << EnemyEdgeEffect >>
 eco0	Reflect

@@ -390,10 +390,26 @@ namespace Landis.Extension.SpruceBudworm
             }
 
             // Read Enemy Edge Wrap Reduction
-            InputVar<double> enemyEdgeWrapReduction = new InputVar<double>("EnemyEdgeWrapReduction");
-            ReadVar(enemyEdgeWrapReduction);
-            parameters.EnemyEdgeWrapReduction = enemyEdgeWrapReduction.Value;
-            
+            ReadName("EnemyEdgeWrapReduction");
+            currentLine = new StringReader(CurrentLine);
+
+            InputVar<double> enemyEdgeWrapReduction_N = new InputVar<double>("EnemyEdgeWrapReduction_N");
+            ReadValue(enemyEdgeWrapReduction_N, currentLine);
+            parameters.EnemyEdgeWrapReduction_N = enemyEdgeWrapReduction_N.Value;
+
+            InputVar<double> enemyEdgeWrapReduction_E = new InputVar<double>("EnemyEdgeWrapReduction_E");
+            ReadValue(enemyEdgeWrapReduction_E, currentLine);
+            parameters.EnemyEdgeWrapReduction_E = enemyEdgeWrapReduction_E.Value;
+
+            InputVar<double> enemyEdgeWrapReduction_S = new InputVar<double>("EnemyEdgeWrapReduction_S");
+            ReadValue(enemyEdgeWrapReduction_S, currentLine);
+            parameters.EnemyEdgeWrapReduction_S = enemyEdgeWrapReduction_S.Value;
+
+            InputVar<double> enemyEdgeWrapReduction_W = new InputVar<double>("EnemyEdgeWrapReduction_W");
+            ReadValue(enemyEdgeWrapReduction_W, currentLine);
+            parameters.EnemyEdgeWrapReduction_W = enemyEdgeWrapReduction_W.Value;
+            GetNextLine();
+
             // Read EnemyEdge Effect parameter
             InputVar<double> enemyBiasedProp = new InputVar<double>("EnemyBiasedProp");
             ReadVar(enemyBiasedProp);
@@ -402,9 +418,8 @@ namespace Landis.Extension.SpruceBudworm
                 parameters.EnemyEdgeEffect = "Biased";
             else
                 parameters.EnemyEdgeEffect = "Unbiased";
-            InputVar<string> enemyEdgeEffect = new InputVar<string>("EnemyEdgeEffect");
-         
-
+            
+            InputVar<string> enemyEdgeEffect = new InputVar<string>("EnemyEdgeEffect");         
             lineNumbers = new Dictionary<string, int>();
             ecoName = new InputVar<string>("L2Ecoregion");
             while (!AtEndOfInput && CurrentName != "MaxBudwormDensity")
@@ -437,6 +452,7 @@ namespace Landis.Extension.SpruceBudworm
                                  currentLine);
                 GetNextLine();
             }
+            
 
             // Read Max Bud Density parameter
             InputVar<double> maxBudDensity = new InputVar<double>("MaxBudwormDensity");

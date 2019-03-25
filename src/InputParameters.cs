@@ -64,7 +64,10 @@ namespace Landis.Extension.SpruceBudworm
         private double enemyDispersalProp;
         private string enemyEdgeEffect;
         private double enemyBiasedProp;
-        private double enemyEdgeWrapReduction;
+        private double enemyEdgeWrapReduction_N;
+        private double enemyEdgeWrapReduction_E;
+        private double enemyEdgeWrapReduction_S;
+        private double enemyEdgeWrapReduction_W;
         private Landis.Library.Parameters.Species.AuxParm<bool> sbwHost;
         private Landis.Library.Parameters.Species.AuxParm<bool> deciduous;
         private string pctDefolMapName;
@@ -890,19 +893,70 @@ namespace Landis.Extension.SpruceBudworm
         }
         //---------------------------------------------------------------------
         /// <summary>
-        /// Enemy reduction in dispersal survival due to dispersal off the map (wrapping)
+        /// Enemy reduction in dispersal survival due to dispersal off the N edge of the map (wrapping)
         /// </summary>
-        public double EnemyEdgeWrapReduction
+        public double EnemyEdgeWrapReduction_N
         {
             get
             {
-                return enemyEdgeWrapReduction;
+                return enemyEdgeWrapReduction_N;
             }
             set
             {
                 if (value < 0)
-                    throw new InputValueException(value.ToString(), "EnemyEdgeWrapReduction must be >= 0.");
-                enemyEdgeWrapReduction = value;
+                    throw new InputValueException(value.ToString(), "EnemyEdgeWrapReduction_N must be >= 0.");
+                enemyEdgeWrapReduction_N = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Enemy reduction in dispersal survival due to dispersal off the E edge of the map (wrapping)
+        /// </summary>
+        public double EnemyEdgeWrapReduction_E
+        {
+            get
+            {
+                return enemyEdgeWrapReduction_E;
+            }
+            set
+            {
+                if (value < 0)
+                    throw new InputValueException(value.ToString(), "EnemyEdgeWrapReduction_E must be >= 0.");
+                enemyEdgeWrapReduction_E = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Enemy reduction in dispersal survival due to dispersal off the S edge of the map (wrapping)
+        /// </summary>
+        public double EnemyEdgeWrapReduction_S
+        {
+            get
+            {
+                return enemyEdgeWrapReduction_S;
+            }
+            set
+            {
+                if (value < 0)
+                    throw new InputValueException(value.ToString(), "EnemyEdgeWrapReduction_S must be >= 0.");
+                enemyEdgeWrapReduction_S = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Enemy reduction in dispersal survival due to dispersal off the W edge of the map (wrapping)
+        /// </summary>
+        public double EnemyEdgeWrapReduction_W
+        {
+            get
+            {
+                return enemyEdgeWrapReduction_W;
+            }
+            set
+            {
+                if (value < 0)
+                    throw new InputValueException(value.ToString(), "EnemyEdgeWrapReduction_W must be >= 0.");
+                enemyEdgeWrapReduction_W = value;
             }
         }
         //---------------------------------------------------------------------

@@ -61,7 +61,7 @@ namespace Landis.Extension.SpruceBudworm
             if (PlugIn.Parameters.SBWHost[cohort.Species] && (cohort.Age >= PlugIn.Parameters.MinSusceptibleAge))
                 {
 
-                    // assign defoliation to cohorts skewed by species and age (12a)
+                    // assign defoliation to cohorts skewed by species and age (13a)
                     // These species names are hard-wired
                     // FIXME
                     double sppConvert = 0.0;
@@ -87,7 +87,9 @@ namespace Landis.Extension.SpruceBudworm
                 throw new System.ApplicationException("Error: Total Mortality is not between 0 and cohort biomass");
             }
 
+            // Calculate cumulative defoliation (16)
             double cohortPctMortality = Impacts.CohortMortality(cohort);
+            // Calculate host tree impacts (17)
             int cohortMortality = (int) (cohortPctMortality * (cohort.Biomass - currentDefol));
             int totalBiomassReduction = currentDefol + cohortMortality;
             SiteVars.BiomassRemoved[currentSite] += totalBiomassReduction;

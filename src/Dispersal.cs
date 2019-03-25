@@ -105,7 +105,7 @@ namespace Landis.Extension.SpruceBudworm
                 }
                 LDDRatio = LDDHabitat * LDDFlight;
 
-                // Calculate LDD dispersers (16b)
+                // Calculate LDD dispersers (18b)
 
                 double LDDout = SiteVars.EggCountFall[site] * LDDRatio; //Units: eggs/m2
                 SiteVars.LDDout[site] = LDDout;
@@ -132,7 +132,7 @@ namespace Landis.Extension.SpruceBudworm
                     }
                 }
 
-                // Calculate SDD dispersers (16b)
+                // Calculate SDD dispersers (20)
                 SiteVars.DisperseSDD(site, PlugIn.Parameters.SDDRadius, PlugIn.Parameters.SDDEdgeEffect, PlugIn.Parameters.EcoParameters);
 
             }
