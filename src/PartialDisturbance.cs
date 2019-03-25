@@ -1,5 +1,4 @@
-//  Copyright 2006-2011 University of Wisconsin, Portland State University
-//  Authors:  Jane Foster, Robert M. Scheller
+//  Authors:  Brian Miranda, USFS
 
 using Landis.Core;
 using Landis.Library.BiomassCohorts;
