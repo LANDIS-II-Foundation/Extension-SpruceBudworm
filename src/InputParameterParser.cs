@@ -271,19 +271,27 @@ namespace Landis.Extension.SpruceBudworm
             ReadName("LDDDispersalKernel");
             currentLine = new StringReader(CurrentLine);
 
-            InputVar<double> dispersalMean1 = new InputVar<double>("DispersalMean1");
-            ReadValue(dispersalMean1, currentLine);
-            parameters.DispersalMean1 = dispersalMean1.Value;
+            InputVar<string> dispersalFile = new InputVar<string>("File");
+            if (ReadOptionalVar(dispersalFile))
+            {
+                parameters.DispersalFile = dispersalFile.Value;
+            }
+            else
+            {
 
-            InputVar<double> dispersalMean2 = new InputVar<double>("DispersalMean2");
-            ReadValue(dispersalMean2, currentLine);
-            parameters.DispersalMean2 = dispersalMean2.Value;
+                InputVar<double> dispersalMean1 = new InputVar<double>("DispersalMean1");
+                ReadValue(dispersalMean1, currentLine);
+                parameters.DispersalMean1 = dispersalMean1.Value;
 
-            InputVar<double> dispersalWeight1 = new InputVar<double>("DispersalWeight1");
-            ReadValue(dispersalWeight1, currentLine);
-            parameters.DispersalWeight1 = dispersalWeight1.Value;
-            GetNextLine();
+                InputVar<double> dispersalMean2 = new InputVar<double>("DispersalMean2");
+                ReadValue(dispersalMean2, currentLine);
+                parameters.DispersalMean2 = dispersalMean2.Value;
 
+                InputVar<double> dispersalWeight1 = new InputVar<double>("DispersalWeight1");
+                ReadValue(dispersalWeight1, currentLine);
+                parameters.DispersalWeight1 = dispersalWeight1.Value;
+                GetNextLine();
+            }
             InputVar<bool> wrapLDD = new InputVar<bool>("WrapLDD");
             ReadVar(wrapLDD);
             parameters.WrapLDD = wrapLDD.Value;

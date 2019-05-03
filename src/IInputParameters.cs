@@ -138,6 +138,8 @@ namespace Landis.Extension.SpruceBudworm
         { get; set; }
         double EmigrationMaxLDDProp
         { get; set; }
+        string DispersalFile
+        { get; set; }
         double DispersalMean1
         { get; set; }
         double DispersalMean2

@@ -33,7 +33,7 @@ namespace Landis.Extension.SpruceBudworm
     }
     class Dispersal
     {
-        private static Dictionary<double, double> dispersal_probability;
+        private static Dictionary<double,Dictionary<double, double>> dispersal_probability;
         private static List<Triplet> cumulative_dispersal_probability; //(dir,distance,prob)
         private static List<int> dispersalIndex;
         private static List<double> dispersalDir;
@@ -529,14 +529,33 @@ namespace Landis.Extension.SpruceBudworm
                 {
                     for (int k = -limit; k <= limit; k++)
                     {
-                        double r, p, dj, dk;
+                        double r, dir, p, dj, dk;
                         int target_x, target_y;
                         dj = j * PlugIn.ModelCore.CellLength;
                         dk = k * PlugIn.ModelCore.CellLength;
 
                         r = Math.Sqrt(dj * dj + dk * dk);
-                        p = dispersal_probability[r];
-                                                
+                    dir = Math.Atan2(dk, dj);
+                    double round_dist = Math.Round(r, 8);
+                    double round_dir = Math.Round(dir, 8);
+                    if (dispersal_probability.ContainsKey(round_dir))
+                    {
+                        if (dispersal_probability[round_dir].ContainsKey(round_dist))
+                        {
+                            p = dispersal_probability[round_dir][round_dist];
+                        }
+                        else
+                        {
+                            string mesg = string.Format("No dispersal probability for direction: {0}, distance: {1}.", round_dir,round_dist);
+                            throw new System.ApplicationException(mesg);
+                        }
+                    }
+                    else
+                    {
+                        string mesg = string.Format("No dispersal probabilities for direction: {0}.", round_dir);
+                        throw new System.ApplicationException(mesg);
+                    }                    
+                
                         target_x = site.Location.Column + j;
                         target_y = site.Location.Row + k;
                         // wrapLDD causes dispersers to stay within the landscape by wrapping the dispersal vector around the landscape (i.e., torus)
@@ -631,16 +650,43 @@ namespace Landis.Extension.SpruceBudworm
         public static void Initialize()
         {
             PlugIn.ModelCore.UI.WriteLine("   Initializing dispersal kernel...");
-            dispersal_probability = new Dictionary<double, double>();
+            //dispersal_probability = new Dictionary<double, Dictionary<double, double>>(); //Key 1 = direction, Key2 = distance);
+            dispersal_probability = DispersalKernelParser.InitializeFromFile(PlugIn.Parameters.DispersalFile);
+            
+            
             //cumulative_dispersal_probability = new Dictionary<double, Dictionary<double, double>>(); //Key 1 = direction, Key2 = distance
             cumulative_dispersal_probability = new List<Triplet>();
+            /*
             cum_prob_benchmarks = new Dictionary<double, int>();
             cum_prob_benchmarks_tail = new Dictionary<double, int>();
             cum_prob_benchmarks_tail2 = new Dictionary<double, int>();
+            */
             dispersalIndex = new List<int>();
-                        dispersalDir = new List<double>();
-                        dispersalDist = new List<double>();
-                        dispersalProb = new List<double>();
+            dispersalDir = new List<double>();
+            dispersalDist = new List<double>();            
+            dispersalProb = new List<double>();
+            double cumulative_p = 0;
+            int index = 0;
+            List<double> dirKeys = new List<double>(dispersal_probability.Keys);
+
+            foreach(double dir in dirKeys)
+            {
+                Dictionary<double,double> dirDict = dispersal_probability[dir];
+                List<double> distKeys = new List<double>(dirDict.Keys);
+                foreach(double dist in distKeys)
+                {
+                    double prob = dirDict[dist];
+                    cumulative_p += prob;
+                    dispersalIndex.Add(index);
+                    index++;
+                    dispersalDir.Add(dir);
+                    dispersalDist.Add(dist);
+                    dispersalProb.Add(cumulative_p);
+                }
+
+            }
+
+            /*
             double max_dispersal_distance = max_dispersal_window();
             max_dispersal_distance_pixels = (int)(max_dispersal_distance / PlugIn.ModelCore.CellLength);
             dispersal_probability.Clear();
@@ -707,6 +753,7 @@ namespace Landis.Extension.SpruceBudworm
                     }
                     if (dispersal_probability.ContainsKey(r))
                     {
+                        if(dispersal_probability[r].ContainsKey()
                         dispersal_probability[r] += p;
                         dispersal_prob_count[r]++;
                     }
@@ -715,7 +762,7 @@ namespace Landis.Extension.SpruceBudworm
                         dispersal_probability.Add(r, p);
                         dispersal_prob_count.Add(r, 1);
                     }
-                    /*if(cumulative_dispersal_probability.ContainsKey(dir))
+                    if(cumulative_dispersal_probability.ContainsKey(dir))
                     {
                         cumulative_dispersal_probability[dir].Add(r, cumulative_p);                        
                     }
@@ -724,17 +771,18 @@ namespace Landis.Extension.SpruceBudworm
                         cum_disp_prob_dir.Add(r, cumulative_p);
                         cumulative_dispersal_probability.Add(dir,cum_disp_prob_dir);
                     }
-                     * */
+                     
                 }
             }
-
+            */
             indexArray = dispersalIndex.ToArray();
+            
             double dispersalProbMax = dispersalProb.Max();
-            List<double> dispersalProbAdj = dispersalProb.Select(r => r / dispersalProbMax).ToList();
+            List<double> dispersalProbAdj = dispersalProb.Select(z => z / dispersalProbMax).ToList();
             dispersalProbAdj[dispersalProbAdj.Count() - 1] = 1;
             probArray = dispersalProbAdj.ToArray();
 
-            //double cumulative_prob = 0;
+            /*//double cumulative_prob = 0;
             foreach (double r in dispersal_prob_count.Keys)
             {
                 dispersal_probability[r] = dispersal_probability[r] / dispersal_prob_count[r];
@@ -783,7 +831,7 @@ namespace Landis.Extension.SpruceBudworm
             System.IO.File.WriteAllText(path1, csvBenchmarks);
             System.IO.File.WriteAllText(path2, csvBenchmarksTail);
             System.IO.File.WriteAllText(path3, csvBenchmarksTail2);
-             * */
+             */
             
         }
         private static double max_dispersal_window()

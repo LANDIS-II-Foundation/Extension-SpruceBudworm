@@ -50,6 +50,7 @@ namespace Landis.Extension.SpruceBudworm
         private double dispersalMean1;
         private double dispersalMean2;
         private double dispersalWeight1;
+        private string dispersalFile;
         private bool wrapLDD;
         private bool lddSpeedUp;
         private double lddEdgeWrapReduction_N;
@@ -669,6 +670,21 @@ namespace Landis.Extension.SpruceBudworm
             set
             {
                 dispersalWeight1 = value;
+            }
+        }
+        //---------------------------------------------------------------------
+        /// <summary>
+        /// Long Distance Dispersal (LDD) 2-dimensional probablity file
+        /// </summary>
+        public string DispersalFile
+        {
+            get
+            {
+                return dispersalFile;
+            }
+            set
+            {
+                dispersalFile = value;
             }
         }
         //---------------------------------------------------------------------
