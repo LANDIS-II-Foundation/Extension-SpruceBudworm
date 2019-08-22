@@ -41,14 +41,14 @@ namespace Landis.Extension.SpruceBudworm
         private static ISiteVar<int> timeOfLastEvent;
         private static ISiteVar<int> severity;
 
-        
+
 
 
         //---------------------------------------------------------------------
 
         public static void Initialize(IInputParameters parameters)
         {
-            disturbed      = PlugIn.ModelCore.Landscape.NewSiteVar<bool>();
+            disturbed = PlugIn.ModelCore.Landscape.NewSiteVar<bool>();
             budwormDensityL2 = PlugIn.ModelCore.Landscape.NewSiteVar<double>();
             ReadFloatMap(parameters.InitSBWDensMap, budwormDensityL2);
             budwormCountSpring = PlugIn.ModelCore.Landscape.NewSiteVar<double>();
@@ -422,11 +422,11 @@ namespace Landis.Extension.SpruceBudworm
             }
         }
         //---------------------------------------------------------------------
-        public static void CalculatePopulation(double winterSurvival,  double randFecund, double phenolLimit)
+        public static void CalculatePopulation(double winterSurvival, double randFecund, double phenolLimit)
         {
-            
+
             double sumCountSpring = 0;
-            double sumCountFiltered= 0;
+            double sumCountFiltered = 0;
             //double sumEnemyFiltered = 0;
             foreach (Site site in PlugIn.ModelCore.Landscape.ActiveSites)
             {
@@ -452,15 +452,15 @@ namespace Landis.Extension.SpruceBudworm
                 {
                     int m = 0;
                     int n = m;
-                }                
+                }
                 //double filteredBudwormSpring = SpatialFilter(site, PlugIn.Parameters.L2FilterRadius);
-                double filteredBudwormSpring = LocalDispersal(site, PlugIn.Parameters.L2FilterRadius, PlugIn.Parameters.L2EdgeEffect,PlugIn.Parameters.EcoParameters);
+                double filteredBudwormSpring = LocalDispersal(site, PlugIn.Parameters.L2FilterRadius, PlugIn.Parameters.L2EdgeEffect, PlugIn.Parameters.EcoParameters);
                 sumCountFiltered += filteredBudwormSpring;
-                
+
             }
             // calculate budworm density (5)
             foreach (Site site in PlugIn.ModelCore.Landscape.ActiveSites)
-            {                
+            {
                 double budwormDensitySpring = 0;
                 if (SiteVars.CurrentHostFoliage[site] > 0)
                     budwormDensitySpring = SiteVars.FilteredBudwormSpring[site] / SiteVars.CurrentHostFoliage[site];
@@ -487,9 +487,9 @@ namespace Landis.Extension.SpruceBudworm
                     int m = 0;
                     int n = m;
                 }
-               
+
                 double budwormDensityL2 = SiteVars.FilteredDensitySpring[site];
-            
+
                 // Apply scaling parameters (7)
                 double budwormDensL2Scaled = Math.Pow((budwormDensityL2 / PlugIn.Parameters.PreyM), (1.0 / PlugIn.Parameters.PreyN));
                 SiteVars.BudwormDensL2Scaled[site] = budwormDensL2Scaled;
@@ -498,7 +498,7 @@ namespace Landis.Extension.SpruceBudworm
                 double budwormCountL2 = 0;
                 double currentHostFoliage = SiteVars.CurrentHostFoliage[site];
                 if (currentHostFoliage > 0)
-                    budwormCountL2 = budwormDensL2Scaled * currentHostFoliage;                
+                    budwormCountL2 = budwormDensL2Scaled * currentHostFoliage;
 
                 // calculate enemy density (9)
                 double enemyDensitySpring = 0;
@@ -512,7 +512,7 @@ namespace Landis.Extension.SpruceBudworm
 
                 //Apply scaling parameters (10)
                 double enemyDensitySpringScaled = Math.Pow((enemyDensitySpring / PlugIn.Parameters.PredM), (1.0 / PlugIn.Parameters.PredN));
-                
+
 
                 // calculate mating effect (11a)
                 double matingEffect = ProportionMatedFunction(PlugIn.Parameters.MatingEffectA, PlugIn.Parameters.MatingEffectB, PlugIn.Parameters.MatingEffectC, budwormDensityL2);
@@ -526,7 +526,7 @@ namespace Landis.Extension.SpruceBudworm
                 double ryx = 1 - Math.Exp((-1 * PlugIn.Parameters.EnemyParamb * budwormDensL2Scaled) - decidProtect2);
                 double rxy = Math.Exp(-1 * PlugIn.Parameters.EnemyParamc * enemyDensitySpringScaled);
                 double rt = PlugIn.Parameters.MaxReproEnemy * ryx * rxy;
-                
+
                 // calculate r't (rprimet) without foliage dependence
                 double rprimeyx = Math.Exp(-1 * (PlugIn.Parameters.SBWParamb + decidProtect1) * Math.Pow(budwormDensL2Scaled, PlugIn.Parameters.SBWParama));
                 double rprimexy = Math.Exp(-1 * (PlugIn.Parameters.SBWParamc * enemyDensitySpringScaled));
@@ -540,7 +540,7 @@ namespace Landis.Extension.SpruceBudworm
                 double allLarvalSurvival = rprimeyx * rprimexy;
                 double defolPopulationComp = (PlugIn.Parameters.DefolLambda + (1.0 - PlugIn.Parameters.DefolLambda) * allLarvalSurvival); // Product of indivudual instar [lambda + (1-lambda)*S]
                 double etaDefol = 870; // mg foliage removed per budworm
-                double pctDefol = 100 * etaDefol * 0.001 * budwormDensityL2 * defolPopulationComp; //convert mg to g (0.001)
+                double pctDefol = 100 * etaDefol * 0.001 * budwormDensL2Scaled * defolPopulationComp; //convert mg to g (0.001)
                 // cap defoliation at 100%
                 pctDefol = Math.Min(pctDefol, 100);
                 // do not allow damage if no budworm
@@ -550,7 +550,7 @@ namespace Landis.Extension.SpruceBudworm
 
                 // calculate r''t (rprime2t) with defoliation effect on fecundity
                 // calculate defoliation effect on fecundity
-                double rprimeZ = (-0.0054 * pctDefol + 1); //Nealis & Regniere 2004, Fig 2
+                double rprimeZ = CalculateRprimeZ(pctDefol); //Nealis & Regniere 2004, Fig 2
                 double rprime2t = fecundity * PlugIn.Parameters.MaxReproSBW * rprimeZ * rprimeyx * rprimexy * matingEffect;
 
                 // calculate enemy density following recruitment (12)
@@ -562,14 +562,14 @@ namespace Landis.Extension.SpruceBudworm
                 {
                     if (PlugIn.Parameters.DefolFecundReduction)  // Defoliation-adjusted fecundity
                     {
-                        budwormDensitySummer = Math.Max(SiteVars.FilteredDensitySpring[site] * rprime2t, 0);
+                        budwormDensitySummer = Math.Max(SiteVars.BudwormDensL2Scaled[site] * rprime2t, 0);
                     }
                     else  // No Defoliation-adjusted fecundity
                     {
-                        budwormDensitySummer = Math.Max(SiteVars.FilteredDensitySpring[site] * rprimet, 0);
+                        budwormDensitySummer = Math.Max(SiteVars.BudwormDensL2Scaled[site] * rprimet, 0);
                     }
                 }
-                
+
                 // calculate number of budworm and enemies (13)
                 double budwormCountSummer = budwormDensitySummer * currentHostFoliage;
                 double enemyCountWinter = enemyDensitySummer * budwormCountSummer;
@@ -619,21 +619,21 @@ namespace Landis.Extension.SpruceBudworm
                     }
                 }
             }
-            if(siteBiomass > 0)
+            if (siteBiomass > 0)
                 decidProportion = (double)decidBiomass / (double)siteBiomass;
             SiteVars.DecidBiomass[site] = decidBiomass;
             SiteVars.DecidProp[site] = decidProportion;
-            
+
             return decidProportion;
         }
         //---------------------------------------------------------------------
         public static void CalculateDefoliation()
         {
             foreach (ActiveSite site in PlugIn.ModelCore.Landscape.ActiveSites)
-            {               
+            {
                 PartialDisturbance.ReduceCohortBiomass(site);
             }
-        }        
+        }
         //---------------------------------------------------------------------
         // This calculates average count among neighbors - NOT USED
         public static double SpatialFilter(Site site, double l2FilterRadius)
@@ -697,7 +697,7 @@ namespace Landis.Extension.SpruceBudworm
 
             // Disperse to all neighbor sites
             double sumDispersed = 0;
-            foreach(Site disperseSite in siteList)
+            foreach (Site disperseSite in siteList)
             {
                 SiteVars.FilteredBudwormSpring[disperseSite] += dispersedCount;
                 sumDispersed += dispersedCount;
@@ -790,7 +790,7 @@ namespace Landis.Extension.SpruceBudworm
             return sumDispersed;
         }
 
-         // This disperses local count among self and neighbors
+        // This disperses local count among self and neighbors
         public static double DisperseSDD(Site site, double sddRadius, string edgeEffect, IEcoParameters[] ecoParameters)
         {
             List<Site> siteList = new List<Site>();  //List of cells to disperse to (takes into account edge effects)
@@ -805,7 +805,7 @@ namespace Landis.Extension.SpruceBudworm
             double dispersedCount = 0;
             // Calculate number to disperse to each site in neighborhood
             dispersedCount = SiteVars.SDDout[site] / (double)maxCells; //For Unbiased
-         
+
             // Disperse to all neighbor sites
             double sumDispersed = 0;
             foreach (Site disperseSite in siteList)
@@ -944,27 +944,27 @@ namespace Landis.Extension.SpruceBudworm
                     {
                         RelativeLocation relLocation = new RelativeLocation(row, col);
                         //neighborhood.Add(relLocation);
-                       
+
                         Site neighbor = site.GetNeighbor(relLocation);
                         IEcoregion ecoregion = PlugIn.ModelCore.Ecoregion[neighbor];
                         string edgeEffect = ecoParameters[ecoregion.Index].L2EdgeEffect;
                         double neighborDensity = 1.0;
                         double siteDensity = 1.0;
-                        if(option == "enemies")
+                        if (option == "enemies")
                         {
                             edgeEffect = ecoParameters[ecoregion.Index].EnemyEdgeEffect;
                             neighborDensity = SiteVars.FilteredBudwormSpring[neighbor];
                             siteDensity = SiteVars.FilteredBudwormSpring[site];
                         }
-                        else if(option == "sdd")
+                        else if (option == "sdd")
                         {
                             edgeEffect = ecoParameters[ecoregion.Index].SDDEdgeEffect;
                             neighborDensity = SiteVars.TotalHostFoliage[neighbor];
                             siteDensity = SiteVars.TotalHostFoliage[site];
                         }
-                        if(edgeEffect == null)
+                        if (edgeEffect == null)
                         {
-                            if(neighbor.IsActive)
+                            if (neighbor.IsActive)
                             {
                                 // in map, but no edge effect defined
                                 // treat as "Absorb"
@@ -1026,7 +1026,7 @@ namespace Landis.Extension.SpruceBudworm
                                 tempSumDensity += neighborDensity;
                             }
                             cellCount++;
-                            maxCellCount++;                            
+                            maxCellCount++;
                         }
                         else
                         {
@@ -1122,10 +1122,10 @@ namespace Landis.Extension.SpruceBudworm
                         RelativeLocation targetLocation = new RelativeLocation(target_y - site.Location.Row, target_x - site.Location.Column);
                         Site neighbor = site.GetNeighbor(targetLocation);
                         IEcoregion ecoregion = PlugIn.ModelCore.Ecoregion[neighbor];
-                        if(ecoregion == null)
+                        if (ecoregion == null)
                         {
                             ecoregion = PlugIn.ModelCore.Ecoregions[0];
-                        } 
+                        }
                         string edgeEffect = ecoParameters[ecoregion.Index].L2EdgeEffect;
                         double neighborDensity = 1.0;
 
@@ -1133,23 +1133,23 @@ namespace Landis.Extension.SpruceBudworm
                         {
                             edgeEffect = ecoParameters[ecoregion.Index].EnemyEdgeEffect;
                             neighborDensity = SiteVars.FilteredBudwormSpring[neighbor];
-                            
+
                         }
                         else if (option == "sdd")
                         {
                             edgeEffect = ecoParameters[ecoregion.Index].SDDEdgeEffect;
                             neighborDensity = SiteVars.TotalHostFoliage[neighbor];
-                            
+
                         }
 
                         if (edgeEffect == null)
                         {
-                                // in map, but no edge effect defined
-                                // treat as "Absorb"
-                                edgeEffect = "Absorb";
+                            // in map, but no edge effect defined
+                            // treat as "Absorb"
+                            edgeEffect = "Absorb";
                         }
 
-                       if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
+                        if (edgeEffect.Equals("Reflect", StringComparison.OrdinalIgnoreCase))
                         {
                             if (neighbor.IsActive)
                             {
@@ -1227,11 +1227,11 @@ namespace Landis.Extension.SpruceBudworm
                             leftMap += "W";
                         }
                         if (target_y < 0) // Dispersal goes off the map to the North
-                        { 
+                        {
                             leftMap += "N";
                         }
                         if (target_x > landscapeCols) // Dispersal goes off the map to the East
-                        { 
+                        {
                             leftMap += "E";
                         }
                         if (target_y > landscapeRows) // Dispersal goes off the map to the South
@@ -1343,7 +1343,7 @@ namespace Landis.Extension.SpruceBudworm
         }
         //-------------------------------------------------------
         //Original code - non-wrapping, no ecoregion edge effects
-        private static void FindNeighborSites(out List<Site> siteList,out int maxCells,out double sumDensity, Site site, double radius, string option)
+        private static void FindNeighborSites(out List<Site> siteList, out int maxCells, out double sumDensity, Site site, double radius, string option)
         {
             double CellLength = PlugIn.ModelCore.CellLength;
 
@@ -1417,6 +1417,14 @@ namespace Landis.Extension.SpruceBudworm
             double bSq = System.Math.Pow(row, 2);
             return System.Math.Sqrt(aSq + bSq);
         }
+
+        //Calculate rprimez
+        //Nealis & Regniere 2004, Fig 2
+        public static double CalculateRprimeZ(double pctDefoliation)
+        {
+            return (-0.0054 * pctDefoliation + 1);
+        }
+
 
     }
 }

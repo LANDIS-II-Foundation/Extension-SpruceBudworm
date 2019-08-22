@@ -86,7 +86,8 @@ namespace Landis.Extension.SpruceBudworm
 
                 double slope = (maxLDDProp - (1 - maxLDDProp)) / (1.0 - 0.46);
                 double intercept = maxLDDProp - slope;
-                double rprimeZ = (-0.0054 * SiteVars.PctDefoliation[site] + 1);
+                double rprimeZ = SiteVars.CalculateRprimeZ(SiteVars.PctDefoliation[site]);
+                //double rprimeZ = (-0.0054 * SiteVars.PctDefoliation[site] + 1);
                 if (PlugIn.Parameters.PositiveFecundDispersal)
                 {
                     if (rprimeZ < 0.46)
