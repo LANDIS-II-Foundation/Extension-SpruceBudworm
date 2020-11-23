@@ -5,7 +5,7 @@
     <AssemblyName>Landis.Extension.SpruceBudworm</AssemblyName>
     <AssemblyTitle>Landis.Extension.SpruceBudworm</AssemblyTitle>
     <AssemblyCopyright>Landis-II-Foundation</AssemblyCopyright>
-    <AssemblyVersion>7.31</AssemblyVersion>
+    <AssemblyVersion>7.33</AssemblyVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/LANDIS-II-Foundation/Extension-SpruceBudworm</RepositoryUrl>
@@ -16,11 +16,11 @@
     <Authors>Brian Miranda</Authors>
     <Product>Landis.Extension.SpruceBudworm</Product>
     <Copyright>Landis-II-Foundation</Copyright>
-    <Version>7.31</Version>
+    <Version>7.33</Version>
     <PackageTags>LANDIS-II;Landis;Extension;SpruceBudworm</PackageTags>
     <Description>LANDIS-II extension for simulating spruce budworm</Description>
     <PackageReleaseNotes>.NET Standard 2.0 update</PackageReleaseNotes>
-    <FileVersion>7.31</FileVersion>
+    <FileVersion>7.33</FileVersion>
     <Company>LANDIS-II Foundation</Company>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>

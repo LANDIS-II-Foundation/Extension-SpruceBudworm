@@ -69,7 +69,7 @@ namespace Landis.Extension.SpruceBudworm
                         m1 = 0.5 / (halfLDD - minLDD);
                     }
                     double b1 = 0.5 - (m1 * halfLDD);
-                    LDDHabitat = m1 * siteDefol + b1;
+                    LDDHabitat = m1 * siteDefol + b1; //confirmed with spreadsheet
                 }
                 else if ((siteDefol > halfLDD) && (siteDefol <= maxLDD))
                 {
@@ -79,13 +79,13 @@ namespace Landis.Extension.SpruceBudworm
                         m2 = 0.5 / (maxLDD - halfLDD);
                     }
                     double b2 = 1.0 - (m2 * maxLDD);
-                    LDDHabitat = m2 * siteDefol + b2;
+                    LDDHabitat = m2 * siteDefol + b2; //confirmed with spreadsheet
                 }
                 else if (siteDefol > maxLDD)
-                    LDDHabitat = 1.0;
+                    LDDHabitat = 1.0; //confirmed with spreadsheet
 
-                double slope = (maxLDDProp - (1 - maxLDDProp)) / (1.0 - 0.46);
-                double intercept = maxLDDProp - slope;
+                double slope = (maxLDDProp - (1 - maxLDDProp)) / (1.0 - 0.46); //confirmed with spreadsheet
+                double intercept = maxLDDProp - slope; //confirmed with spreadsheet
                 double rprimeZ = SiteVars.CalculateRprimeZ(SiteVars.PctDefoliation[site]);
                 //double rprimeZ = (-0.0054 * SiteVars.PctDefoliation[site] + 1);
                 if (PlugIn.Parameters.PositiveFecundDispersal)
@@ -95,12 +95,12 @@ namespace Landis.Extension.SpruceBudworm
                     else
                         LDDFlight = slope * rprimeZ + intercept;
                 }
-                else
+                else // confirmed with spreadsheet
                 {
                     double slope2 = (-1.0) * slope;
                     double intercept2 = (-1.0) * intercept + 1.0;
                     if (rprimeZ < 0.46)
-                        LDDFlight = 1.0;
+                        LDDFlight = maxLDDProp;
                     else
                         LDDFlight = slope2 * rprimeZ + intercept2;
                 }

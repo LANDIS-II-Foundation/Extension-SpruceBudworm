@@ -198,7 +198,7 @@ namespace Landis.Extension.SpruceBudworm
                        {
                            if (site.IsActive)
                            {
-                               pixel.MapCode.Value = (double)(SiteVars.BudwormDensL2Scaled[site]);
+                               pixel.MapCode.Value = (double)(SiteVars.FilteredDensitySpring[site]);
 
                            }
                            else

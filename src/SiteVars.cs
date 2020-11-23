@@ -50,10 +50,10 @@ namespace Landis.Extension.SpruceBudworm
         {
             disturbed = PlugIn.ModelCore.Landscape.NewSiteVar<bool>();
             budwormDensityL2 = PlugIn.ModelCore.Landscape.NewSiteVar<double>();
-            ReadFloatMap(parameters.InitSBWDensMap, budwormDensityL2);
             budwormCountSpring = PlugIn.ModelCore.Landscape.NewSiteVar<double>();
             filteredBudwormSpring = PlugIn.ModelCore.Landscape.NewSiteVar<double>();
             filteredDensitySpring = PlugIn.ModelCore.Landscape.NewSiteVar<double>();
+            ReadFloatMap(parameters.InitSBWDensMap, filteredDensitySpring);
             budwormCount = PlugIn.ModelCore.Landscape.NewSiteVar<double>();
             enemyDensity = PlugIn.ModelCore.Landscape.NewSiteVar<double>();
             ReadFloatMap(parameters.InitEnemyDensMap, enemyDensity);
@@ -109,7 +109,7 @@ namespace Landis.Extension.SpruceBudworm
             }
         }
         //---------------------------------------------------------------------
-        public static ISiteVar<double> BudwormDensL2Scaled
+        public static ISiteVar<double> BudwormDensL2
         {
             get
             {
@@ -488,34 +488,34 @@ namespace Landis.Extension.SpruceBudworm
                     int n = m;
                 }
 
-                double budwormDensityL2 = SiteVars.FilteredDensitySpring[site];
+                double budwormDensityL2_yt = SiteVars.FilteredDensitySpring[site];
 
-                // Apply scaling parameters (7)
-                double budwormDensL2Scaled = Math.Pow((budwormDensityL2 / PlugIn.Parameters.PreyM), (1.0 / PlugIn.Parameters.PreyN));
-                SiteVars.BudwormDensL2Scaled[site] = budwormDensL2Scaled;
+                // Apply scaling parameters (7) - v7.31 does not use scaled density anywhere else
+                double budwormDensL2Scaled = Math.Pow((budwormDensityL2_yt / PlugIn.Parameters.PreyM), (1.0 / PlugIn.Parameters.PreyN));
+                //SiteVars.BudwormDensL2[site] = budwormDensityL2_yt;
 
-                // calculate scaled budworm L2 count (8)
+                // calculate budworm L2 count (8)
                 double budwormCountL2 = 0;
                 double currentHostFoliage = SiteVars.CurrentHostFoliage[site];
                 if (currentHostFoliage > 0)
-                    budwormCountL2 = budwormDensL2Scaled * currentHostFoliage;
+                    budwormCountL2 = budwormDensityL2_yt * currentHostFoliage;
 
                 // calculate enemy density (9)
-                double enemyDensitySpring = 0;
+                double enemyDensitySpring_xt = 0;
                 double budwormCountSpring = SiteVars.FilteredBudwormSpring[site];
                 double minDensity = 10e-250;
                 if (budwormCountSpring > minDensity) // At very low budworm counts the budworm and enemies go to 0
-                    enemyDensitySpring = SiteVars.FilteredEnemyCount[site] / budwormCountSpring;
+                    enemyDensitySpring_xt = SiteVars.FilteredEnemyCount[site] / budwormCountSpring;
                 else
                     budwormCountSpring = 0;
-                SiteVars.EnemyDensity[site] = enemyDensitySpring;
+                SiteVars.EnemyDensity[site] = enemyDensitySpring_xt;
 
-                //Apply scaling parameters (10)
-                double enemyDensitySpringScaled = Math.Pow((enemyDensitySpring / PlugIn.Parameters.PredM), (1.0 / PlugIn.Parameters.PredN));
+                //Apply scaling parameters (10) - v7.31 does not use scaled density anywhere else
+                double enemyDensitySpringScaled = Math.Pow((enemyDensitySpring_xt / PlugIn.Parameters.PredM), (1.0 / PlugIn.Parameters.PredN));
 
 
                 // calculate mating effect (11a)
-                double matingEffect = ProportionMatedFunction(PlugIn.Parameters.MatingEffectA, PlugIn.Parameters.MatingEffectB, PlugIn.Parameters.MatingEffectC, budwormDensityL2);
+                double matingEffect = ProportionMatedFunction(PlugIn.Parameters.MatingEffectA, PlugIn.Parameters.MatingEffectB, PlugIn.Parameters.MatingEffectC, budwormDensityL2_yt);
 
                 // calculate deciduous protection effect (11b)
                 double decidProportion = CalculateDecidProportion(site, PlugIn.Parameters.Deciduous);
@@ -523,24 +523,25 @@ namespace Landis.Extension.SpruceBudworm
                 double decidProtect2 = decidProportion * PlugIn.Parameters.DecidProtectMax2;  // parasite community composition effect
 
                 // recruitment functions (12)
-                double ryx = 1 - Math.Exp((-1 * PlugIn.Parameters.EnemyParamb * budwormDensL2Scaled) - decidProtect2);
-                double rxy = Math.Exp(-1 * PlugIn.Parameters.EnemyParamc * enemyDensitySpringScaled);
-                double rt = PlugIn.Parameters.MaxReproEnemy * ryx * rxy;
+                double ryx = 1 - Math.Exp((-1 * PlugIn.Parameters.EnemyParamb * budwormDensityL2_yt) - decidProtect2); //confirmed with spreadsheet
+                double rxy = Math.Exp(-1 * PlugIn.Parameters.EnemyParamc * enemyDensitySpring_xt); //confirmed with spreadsheet
+                double rt = PlugIn.Parameters.MaxReproEnemy * ryx * rxy; //confirmed with spreadsheet
 
                 // calculate r't (rprimet) without foliage dependence
-                double rprimeyx = Math.Exp(-1 * (PlugIn.Parameters.SBWParamb + decidProtect1) * Math.Pow(budwormDensL2Scaled, PlugIn.Parameters.SBWParama));
-                double rprimexy = Math.Exp(-1 * (PlugIn.Parameters.SBWParamc * enemyDensitySpringScaled));
+                double rprimeyx = Math.Exp(-1 * (PlugIn.Parameters.SBWParamb + decidProtect1) * Math.Pow(budwormDensityL2_yt, PlugIn.Parameters.SBWParama)); //confirmed with spreadsheet
+                double rprimexy = Math.Exp(-1 * (PlugIn.Parameters.SBWParamc * enemyDensitySpring_xt)); //confirmed with spreadsheet
                 double fecundity = 216.8;
-                double rprimet = fecundity * PlugIn.Parameters.MaxReproSBW * rprimeyx * rprimexy * matingEffect;
+                double rprimet = fecundity * PlugIn.Parameters.MaxReproSBW * rprimeyx * rprimexy * matingEffect; //confirmed with spreadsheet
 
                 // Host Tree Damage
                 // Calculate defoliation (15)
                 // Use Regniere and You 1991; Eq. 13
                 //double defolPopulationComp = 0.385; // Product of indivudual instar [lambda + (1-lambda)*S]
                 double allLarvalSurvival = rprimeyx * rprimexy;
-                double defolPopulationComp = (PlugIn.Parameters.DefolLambda + (1.0 - PlugIn.Parameters.DefolLambda) * allLarvalSurvival); // Product of indivudual instar [lambda + (1-lambda)*S]
+                //double defolPopulationComp = (PlugIn.Parameters.DefolLambda + (1.0 - PlugIn.Parameters.DefolLambda) * allLarvalSurvival); // Product of indivudual instar [lambda + (1-lambda)*S]
+                double defolPopulationComp = (PlugIn.Parameters.DefolLambda + (1.0 - PlugIn.Parameters.DefolLambda) * 1); //confirmed with spreadsheet if defolLambda = 0.255
                 double etaDefol = 870; // mg foliage removed per budworm
-                double pctDefol = 100 * etaDefol * 0.001 * budwormDensL2Scaled * defolPopulationComp; //convert mg to g (0.001)
+                double pctDefol = 100 * etaDefol * 0.001 * budwormDensityL2_yt * defolPopulationComp; //convert mg to g (0.001)
                 // cap defoliation at 100%
                 pctDefol = Math.Min(pctDefol, 100);
                 // do not allow damage if no budworm
@@ -551,10 +552,10 @@ namespace Landis.Extension.SpruceBudworm
                 // calculate r''t (rprime2t) with defoliation effect on fecundity
                 // calculate defoliation effect on fecundity
                 double rprimeZ = CalculateRprimeZ(pctDefol); //Nealis & Regniere 2004, Fig 2
-                double rprime2t = fecundity * PlugIn.Parameters.MaxReproSBW * rprimeZ * rprimeyx * rprimexy * matingEffect;
+                double rprime2t = fecundity * PlugIn.Parameters.MaxReproSBW * rprimeZ * rprimeyx * rprimexy * matingEffect; //confirmed with spreadsheet
 
                 // calculate enemy density following recruitment (12)
-                double enemyDensitySummer = enemyDensitySpringScaled * rt;
+                double enemyDensitySummer = enemyDensitySpring_xt * rt;
 
                 // calculate budworm density following recruitment (12)
                 double budwormDensitySummer = 0;
@@ -562,11 +563,11 @@ namespace Landis.Extension.SpruceBudworm
                 {
                     if (PlugIn.Parameters.DefolFecundReduction)  // Defoliation-adjusted fecundity
                     {
-                        budwormDensitySummer = Math.Max(SiteVars.BudwormDensL2Scaled[site] * rprime2t, 0);
+                        budwormDensitySummer = Math.Max(SiteVars.FilteredDensitySpring[site] * rprime2t, 0);
                     }
                     else  // No Defoliation-adjusted fecundity
                     {
-                        budwormDensitySummer = Math.Max(SiteVars.BudwormDensL2Scaled[site] * rprimet, 0);
+                        budwormDensitySummer = Math.Max(SiteVars.FilteredDensitySpring[site] * rprimet, 0);
                     }
                 }
 
@@ -598,7 +599,7 @@ namespace Landis.Extension.SpruceBudworm
         // 3-parameter mating effect
         public static double ProportionMatedFunction(double a, double b, double c, double x)
         {
-            double y = 1.0 - Math.Exp(-1.0 * Math.Pow(a, c) * x - b);
+            double y = 1.0 - Math.Exp(-1.0 * a * Math.Pow(x, c) - b);  // Confirmed with spreadsheet
             return y;
         }
         //---------------------------------------------------------------------
@@ -1422,7 +1423,7 @@ namespace Landis.Extension.SpruceBudworm
         //Nealis & Regniere 2004, Fig 2
         public static double CalculateRprimeZ(double pctDefoliation)
         {
-            return (-0.0054 * pctDefoliation + 1);
+            return (-0.0054 * pctDefoliation + 1);// confirmed with spreadsheet
         }
 
 

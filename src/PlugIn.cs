@@ -132,7 +132,7 @@ namespace Landis.Extension.SpruceBudworm
                 {
                     foreach (Site site in PlugIn.ModelCore.Landscape.ActiveSites)
                     {
-                        SiteVars.BudwormCount[site] = SiteVars.BudwormDensL2Scaled[site] * SiteVars.CurrentHostFoliage[site];
+                        SiteVars.BudwormCount[site] = SiteVars.FilteredDensitySpring[site] * SiteVars.CurrentHostFoliage[site];
                         SiteVars.EnemyCount[site] = SiteVars.EnemyDensity[site] * SiteVars.BudwormCount[site];
                     }
                 }
